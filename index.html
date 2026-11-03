@@ -43,12 +43,15 @@
     /* Print optimization */
     @media print {
       .no-print { display: none !important; }
-      body { background: white !important; color: black !important; font-size: 10.5pt !important; }
+      #printMetaBanner { display: block !important; }
+      body { background: white !important; color: black !important; font-size: 9pt !important; }
       .print-shadow-none { box-shadow: none !important; }
-      table { page-break-inside: auto; }
+      table { page-break-inside: auto; width: 100% !important; }
       tr { page-break-inside: avoid; page-break-after: auto; }
       #passwordOverlay { display: none !important; }
       #appContent { filter: none !important; }
+      main { padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
+      .rounded-2xl { border-radius: 0 !important; border: 1px solid #cbd5e1 !important; }
     }
 
     /* 2. Themes: Light (淺色), Dark (深色), Soft Green (淡綠) */
@@ -267,19 +270,23 @@
             </div>
           </div>
 
-          <!-- Action tools -->
-          <div class="flex items-center gap-2 self-start md:self-auto no-print">
-            <a href="南投國中115學年度第一學期行事曆.xlsx" download class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-700/80 hover:bg-emerald-700 border border-emerald-400/40 text-xs font-medium text-white transition shadow-sm active:scale-95" title="下載精緻排版 Excel 表格 (.xlsx)">
+          <!-- Action tools (Excel下載、原始行事曆下載、篩選列印、鎖定) -->
+          <div class="flex flex-wrap items-center gap-2 self-start md:self-auto no-print">
+            <a href="南投國中115學年度第一學期行事曆.xlsx" download class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-700/90 hover:bg-emerald-700 border border-emerald-400/50 text-xs font-semibold text-white transition shadow-sm active:scale-95" title="下載精緻排版 Excel 表格 (.xlsx)">
               <i class="fa-solid fa-file-excel text-emerald-200"></i>
               <span id="btnTextExcel">下載 Excel (.xlsx)</span>
             </a>
-            <button onclick="downloadICS()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-600/80 hover:bg-sky-600 border border-sky-400/40 text-xs font-medium text-white transition shadow-sm active:scale-95" title="匯入 Google 日曆 / Apple 行事曆">
+            <a href="11501全校行事曆0821完整.doc" download class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-700/90 hover:bg-teal-700 border border-teal-400/50 text-xs font-semibold text-white transition shadow-sm active:scale-95" title="下載學校核定之原始行事曆公文 Word 檔 (.doc)">
+              <i class="fa-solid fa-file-word text-teal-200"></i>
+              <span id="btnTextWord">原始行事曆下載 (.doc)</span>
+            </a>
+            <button onclick="printFiltered()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-600/90 hover:bg-amber-600 border border-amber-400/50 text-xs font-semibold text-white transition shadow-sm active:scale-95" title="列印目前篩選後的處室/事項行事曆">
+              <i class="fa-solid fa-print text-amber-200"></i>
+              <span id="btnTextPrint">篩選行事曆列印</span>
+            </button>
+            <button onclick="downloadICS()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-sky-600/80 hover:bg-sky-600 border border-sky-400/40 text-xs font-medium text-white transition shadow-sm active:scale-95" title="匯入 Google 日曆 / Apple 行事曆">
               <i class="fa-solid fa-calendar-plus text-sky-200"></i>
               <span id="btnTextIcs">匯出 .ICS</span>
-            </button>
-            <button onclick="window.print()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700/80 hover:bg-slate-700 border border-slate-500/40 text-xs font-medium text-white transition shadow-sm active:scale-95" title="友善排版列印">
-              <i class="fa-solid fa-print text-slate-300"></i>
-              <span id="btnTextPrint">列印</span>
             </button>
             <button onclick="lockCalendar()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-700/80 hover:bg-slate-700 border border-slate-500/40 text-xs font-medium text-white transition shadow-sm active:scale-95" title="鎖定頁面">
               <i class="fa-solid fa-lock text-slate-300"></i>
@@ -392,15 +399,29 @@
     <!-- Main Calendar Content Area -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex-1 w-full">
       
+      <!-- Dedicated Print Header (Only visible on paper / PDF print) -->
+      <div id="printMetaBanner" class="hidden pb-3 mb-3 border-b-2 border-slate-800 text-slate-900">
+        <div class="flex justify-between items-end">
+          <div>
+            <h1 class="text-xl font-bold">南投縣立南投國民中學 115學年度第一學期行事曆</h1>
+            <p id="printFilterSummaryText" class="text-xs text-slate-700 mt-1 font-semibold">列印範圍：全校行事曆</p>
+          </div>
+          <div class="text-right text-[11px] text-slate-600">
+            <p>資料依據校方 115.08.28 核定公文</p>
+            <p id="printDateText">列印時間：2026/11/03</p>
+          </div>
+        </div>
+      </div>
+
       <!-- 1. Weekly Grid View (Matches original school schedule format) -->
       <div id="weeklyViewContainer" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden transition-colors">
-        <div class="p-4 bg-slate-50/80 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div class="p-4 bg-slate-50/80 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 no-print">
           <div class="flex items-center gap-2">
             <h2 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
               <i class="fa-solid fa-calendar-week text-sky-600"></i>
               <span id="weeklyTableTitle">南投國中 115學年度第一學期 完整週次行事曆</span>
             </h2>
-            <span class="text-xs px-2 py-0.5 rounded bg-sky-100 text-sky-800 font-medium">共 21 週</span>
+            <span class="text-xs px-2 py-0.5 rounded bg-sky-100 text-sky-800 font-medium" id="weeklyCountBadge">共 21 週</span>
           </div>
           <div class="text-xs text-slate-500 flex flex-wrap items-center gap-2 sm:gap-3" id="legendBadges">
             <!-- Rendered dynamically -->
@@ -411,18 +432,7 @@
           <table class="w-full text-left text-xs border-collapse">
             <thead>
               <tr class="bg-sky-900 text-white font-medium border-b border-sky-950" id="tableHeaderRow">
-                <th class="py-2.5 px-2 text-center w-14 border-r border-sky-800">月份</th>
-                <th class="py-2.5 px-2 text-center w-12 border-r border-sky-800">週次</th>
-                <th class="py-2.5 px-1.5 text-center w-8 border-r border-sky-800 bg-sky-950/40">日</th>
-                <th class="py-2.5 px-1.5 text-center w-8 border-r border-sky-800">一</th>
-                <th class="py-2.5 px-1.5 text-center w-8 border-r border-sky-800">二</th>
-                <th class="py-2.5 px-1.5 text-center w-8 border-r border-sky-800">三</th>
-                <th class="py-2.5 px-1.5 text-center w-8 border-r border-sky-800">四</th>
-                <th class="py-2.5 px-1.5 text-center w-8 border-r border-sky-800">五</th>
-                <th class="py-2.5 px-1.5 text-center w-8 border-r border-sky-800 bg-sky-950/40">六</th>
-                <th class="py-2.5 px-3.5 border-r border-sky-800 w-[28%]" id="thDept1">教務處 / 進修部</th>
-                <th class="py-2.5 px-3.5 border-r border-sky-800 w-[30%]" id="thDept2">學務處</th>
-                <th class="py-2.5 px-3.5 w-[26%]" id="thDept3">輔導室 / 總務處</th>
+                <!-- Rendered dynamically depending on single dept vs all depts -->
               </tr>
             </thead>
             <tbody id="weeklyTableBody" class="divide-y divide-slate-200">
@@ -643,8 +653,9 @@
       document.getElementById('headerMainTitle').textContent = isCute ? '🌟 全校第一學期行事曆查詢系統 📅' : '全校第一學期行事曆互動查詢系統';
       
       document.getElementById('btnTextExcel').textContent = isCute ? '📊 下載 Excel (.xlsx)' : '下載 Excel (.xlsx)';
+      document.getElementById('btnTextWord').textContent = isCute ? '📑 原始行事曆下載 (.doc)' : '原始行事曆下載 (.doc)';
+      document.getElementById('btnTextPrint').textContent = isCute ? '🖨️ 篩選行事曆列印' : '篩選行事曆列印';
       document.getElementById('btnTextIcs').textContent = isCute ? '🗓️ 匯出 .ICS' : '匯出 .ICS';
-      document.getElementById('btnTextPrint').textContent = isCute ? '🖨️ 列印' : '列印';
       document.getElementById('btnTextLock').textContent = isCute ? '🔒 鎖定' : '鎖定';
 
       document.getElementById('milestoneBannerTitle').textContent = isCute ? '🎯 焦點時程速覽：' : '焦點時程速覽：';
@@ -655,9 +666,6 @@
       document.getElementById('mTitle5').textContent = isCute ? '🏅 全校運動會 (暫定)' : '全校運動會 (暫定)';
 
       document.getElementById('weeklyTableTitle').textContent = isCute ? '🌸 南投國中 115學年度第一學期 完整週次行事曆 🌸' : '南投國中 115學年度第一學期 完整週次行事曆';
-      document.getElementById('thDept1').textContent = isCute ? '📚 教務處 / 進修部' : '教務處 / 進修部';
-      document.getElementById('thDept2').textContent = isCute ? '🏃 學務處' : '學務處';
-      document.getElementById('thDept3').textContent = isCute ? '💖 輔導室 / 總務處' : '輔導室 / 總務處';
 
       document.getElementById('legendBadges').innerHTML = isCute ? `
         <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-orange-400"></span> 📢 朝會</span>
@@ -904,7 +912,15 @@
       if (selectedDept !== '全部') currentFilterLabel += `【${formatDeptLabel(selectedDept)}】`;
       if (selectedMonth !== 'all') currentFilterLabel += `【${selectedMonth}月】`;
 
-      summaryElem.innerHTML = `${isCute ? '✨ ' : ''}符合條件事項${currentFilterLabel}：<strong class="text-sky-700 font-bold">${filteredEvents.length}</strong> 項 (共 ${CALENDAR_DATA.events.length} 項)`;
+      summaryElem.innerHTML = `${isCute ? '✨ ' : ''}符合條件事項${currentFilterLabel}：<strong class="text-sky-700 font-bold">${filteredEvents.length}</strong> 項 (全學期共 ${CALENDAR_DATA.events.length} 項)`;
+
+      // Dynamic Title based on selectedDept
+      const titleElem = document.getElementById('weeklyTableTitle');
+      if (selectedDept !== '全部') {
+        titleElem.textContent = isCute ? `🌸 南投國中 115學年度第一學期【${formatDeptLabel(selectedDept)}】專屬行事曆 🌸` : `南投國中 115學年度第一學期【${selectedDept}】行事曆`;
+      } else {
+        titleElem.textContent = isCute ? '🌸 南投國中 115學年度第一學期 完整週次行事曆 🌸' : '南投國中 115學年度第一學期 完整週次行事曆';
+      }
 
       if (currentView === 'weekly') {
         renderWeeklyTable(filteredEvents);
@@ -914,45 +930,103 @@
     }
 
     // Render Weekly Table
+    // When a specific department is selected, only that department's column is shown
     function renderWeeklyTable(filteredEvents) {
+      const theadRow = document.getElementById('tableHeaderRow');
       const tbody = document.getElementById('weeklyTableBody');
       const filteredEventIds = new Set(filteredEvents.map(e => e.id));
+      const isCute = currentThemeStyle === 'cute';
 
-      const isFiltering = selectedDept !== '全部' || selectedMonth !== 'all' || selectedTag !== '全部' || searchQuery !== '';
+      // Determine active columns based on selectedDept
+      let activeColumns = [];
+      if (selectedDept === '全部') {
+        activeColumns = [
+          { key: 'acad', name: isCute ? '📚 教務處 / 進修部' : '教務處 / 進修部', width: 'w-[28%]' },
+          { key: 'stud', name: isCute ? '🏃 學務處' : '學務處', width: 'w-[30%]' },
+          { key: 'coun', name: isCute ? '💖 輔導室 / 總務處' : '輔導室 / 總務處', width: 'w-[26%]' }
+        ];
+      } else if (selectedDept === '學務處') {
+        activeColumns = [
+          { key: 'stud', name: isCute ? '🏃 學務處（專屬時程）' : '學務處（專屬時程）', width: 'w-[84%]' }
+        ];
+      } else if (selectedDept === '學務處-訓育組') {
+        activeColumns = [
+          { key: 'stud-disc', name: isCute ? '🚩 學務處 - 訓育組專屬日程（含朝會、週會）' : '學務處 - 訓育組專屬日程（含朝會、週會）', width: 'w-[84%]' }
+        ];
+      } else if (selectedDept.includes('教務')) {
+        activeColumns = [
+          { key: 'acad', name: isCute ? '📚 教務處 / 進修部（專屬時程）' : '教務處 / 進修部（專屬時程）', width: 'w-[84%]' }
+        ];
+      } else if (selectedDept.includes('輔導') || selectedDept.includes('總務')) {
+        activeColumns = [
+          { key: 'coun', name: isCute ? '💖 輔導室 / 總務處（專屬時程）' : '輔導室 / 總務處（專屬時程）', width: 'w-[84%]' }
+        ];
+      }
 
-      let html = '';
+      // Render Header
+      let headerHtml = `
+        <th class="py-2.5 px-2 text-center w-14 border-r border-sky-800">月份</th>
+        <th class="py-2.5 px-2 text-center w-12 border-r border-sky-800">週次</th>
+        <th class="py-2.5 px-1.5 text-center w-8 border-r border-sky-800 bg-sky-950/40">日</th>
+        <th class="py-2.5 px-1.5 text-center w-8 border-r border-sky-800">一</th>
+        <th class="py-2.5 px-1.5 text-center w-8 border-r border-sky-800">二</th>
+        <th class="py-2.5 px-1.5 text-center w-8 border-r border-sky-800">三</th>
+        <th class="py-2.5 px-1.5 text-center w-8 border-r border-sky-800">四</th>
+        <th class="py-2.5 px-1.5 text-center w-8 border-r border-sky-800">五</th>
+        <th class="py-2.5 px-1.5 text-center w-8 border-r border-sky-800 bg-sky-950/40">六</th>
+      `;
+
+      activeColumns.forEach((col, idx) => {
+        const borderClass = idx < activeColumns.length - 1 ? 'border-r border-sky-800' : '';
+        headerHtml += `<th class="py-2.5 px-3.5 ${borderClass} ${col.width}">${col.name}</th>`;
+      });
+      theadRow.innerHTML = headerHtml;
+
+      const isSubFiltering = selectedMonth !== 'all' || selectedTag !== '全部' || searchQuery !== '';
+
+      let bodyHtml = '';
+      let visibleWeekCount = 0;
+
       CALENDAR_DATA.weeks.forEach((w, idx) => {
         const weekEvents = CALENDAR_DATA.events.filter(e => e.week_num === w.week_num);
         const matchingWeekEvents = weekEvents.filter(e => filteredEventIds.has(e.id));
         
-        if (isFiltering && matchingWeekEvents.length === 0) {
+        // If sub-filtering by month/tag/search, hide weeks that don't match
+        if (isSubFiltering && matchingWeekEvents.length === 0) {
           return;
         }
 
+        visibleWeekCount++;
         const days = w.days;
         const isExamWeek = weekEvents.some(e => e.tag === '考試測驗');
-
         const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
 
-        const formatDeptCell = (deptName) => {
-          const deptEvents = weekEvents.filter(e => {
-            if (deptName === '教務處/進修部') return e.department === '教務處/進修部' || e.department.includes('教務');
-            if (deptName === '學務處') return e.department === '學務處';
-            return e.department === '輔導室/總務處' || e.department.includes('輔導') || e.department.includes('總務');
-          });
+        const formatDeptCell = (colKey) => {
+          let deptEvents = [];
+          if (colKey === 'acad') {
+            deptEvents = weekEvents.filter(e => e.department === '教務處/進修部' || e.department.includes('教務'));
+          } else if (colKey === 'stud') {
+            deptEvents = weekEvents.filter(e => e.department === '學務處');
+          } else if (colKey === 'stud-disc') {
+            deptEvents = weekEvents.filter(e => e.department === '學務處' && (e.section === '訓育組' || e.is_discipline || e.tag === '朝會' || e.tag === '週會' || e.tag === '訓育組'));
+          } else if (colKey === 'coun') {
+            deptEvents = weekEvents.filter(e => e.department === '輔導室/總務處' || e.department.includes('輔導') || e.department.includes('總務'));
+          }
+
+          // If a tag or search is active, show only matching events in this cell
+          if (isSubFiltering) {
+            deptEvents = deptEvents.filter(e => filteredEventIds.has(e.id));
+          }
 
           if (deptEvents.length === 0) return '<span class="text-slate-300">-</span>';
 
           return deptEvents.map(e => {
             const isMatch = filteredEventIds.has(e.id);
-            const opacityClass = isFiltering && !isMatch ? 'opacity-30' : 'opacity-100';
             const tagStyle = getTagClass(e.tag);
             const cuteEmoji = getCuteEmojiForEvent(e);
             
             return `
-              <div onclick="openModal(${e.id})" class="mb-1.5 p-1.5 rounded-lg border text-left cursor-pointer transition hover:scale-[1.01] hover:shadow-sm ${opacityClass} ${
-                isMatch ? 'bg-white shadow-xs' : 'bg-slate-50'
-              }">
+              <div onclick="openModal(${e.id})" class="mb-1.5 p-1.5 rounded-lg border text-left cursor-pointer transition hover:scale-[1.01] hover:shadow-sm bg-white shadow-xs">
                 <div class="flex items-center gap-1.5 mb-0.5 flex-wrap">
                   ${e.date_display ? `<span class="font-bold text-[11px] text-slate-800">${e.date_display}</span>` : ''}
                   <span class="text-[10px] px-1.5 py-0.2 rounded font-medium ${tagStyle}">${formatTagLabel(e.tag)}</span>
@@ -964,7 +1038,7 @@
           }).join('');
         };
 
-        html += `
+        bodyHtml += `
           <tr class="${rowBg} hover:bg-sky-50/40 transition">
             <td class="py-3 px-2 text-center font-bold text-slate-600 border-r border-slate-200">
               ${w.month || ''}
@@ -981,31 +1055,35 @@
             <td class="py-2 px-1 text-center font-medium border-r border-slate-200 text-slate-700">${days.Thu || ''}</td>
             <td class="py-2 px-1 text-center font-medium border-r border-slate-200 text-slate-700">${days.Fri || ''}</td>
             <td class="py-2 px-1 text-center font-medium border-r border-slate-200 text-slate-400 bg-slate-50/50">${days.Sat || ''}</td>
-            
-            <td class="py-2.5 px-3 align-top border-r border-slate-200">
-              ${formatDeptCell('教務處/進修部')}
-            </td>
-            <td class="py-2.5 px-3 align-top border-r border-slate-200">
-              ${formatDeptCell('學務處')}
-            </td>
-            <td class="py-2.5 px-3 align-top">
-              ${formatDeptCell('輔導室/總務處')}
-            </td>
-          </tr>
         `;
+
+        activeColumns.forEach((col, cIdx) => {
+          const borderClass = cIdx < activeColumns.length - 1 ? 'border-r border-slate-200' : '';
+          bodyHtml += `
+            <td class="py-2.5 px-3 align-top ${borderClass}">
+              ${formatDeptCell(col.key)}
+            </td>
+          `;
+        });
+
+        bodyHtml += `</tr>`;
       });
 
-      if (html === '') {
+      const countBadge = document.getElementById('weeklyCountBadge');
+      if (countBadge) countBadge.textContent = `共 ${visibleWeekCount} 週`;
+
+      if (bodyHtml === '') {
+        const totalCols = 9 + activeColumns.length;
         tbody.innerHTML = `
           <tr>
-            <td colspan="12" class="py-12 text-center text-slate-400">
+            <td colspan="${totalCols}" class="py-12 text-center text-slate-400">
               <i class="fa-solid fa-search text-3xl mb-2 text-slate-300 block"></i>
               沒有符合條件的週次事項
             </td>
           </tr>
         `;
       } else {
-        tbody.innerHTML = html;
+        tbody.innerHTML = bodyHtml;
       }
     }
 
@@ -1144,6 +1222,34 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+    }
+
+    // Print Filtered Calendar Function
+    function printFiltered() {
+      // 1. Switch to weekly view if on timeline view for formal tabular print
+      if (currentView !== 'weekly') {
+        switchView('weekly');
+      }
+
+      // 2. Prepare filter summary subtitle
+      let filterDetails = [];
+      if (selectedDept !== '全部') filterDetails.push(`處室: ${selectedDept}`);
+      if (selectedTag !== '全部') filterDetails.push(`分類: ${selectedTag}`);
+      if (selectedMonth !== 'all') filterDetails.push(`月份: ${selectedMonth}月`);
+      if (searchQuery) filterDetails.push(`關鍵字: "${searchQuery}"`);
+
+      const summaryText = filterDetails.length > 0 
+        ? `列印範圍：${filterDetails.join(' ｜ ')}` 
+        : '列印範圍：全校行事曆（完整 21 週）';
+
+      document.getElementById('printFilterSummaryText').textContent = summaryText;
+
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+      document.getElementById('printDateText').textContent = `列印時間：${dateStr}`;
+
+      // 3. Trigger Print
+      window.print();
     }
   </script>
 </body>
