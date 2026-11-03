@@ -37,9 +37,7 @@ html_template = """<!DOCTYPE html>
     }
   </script>
   <style>
-    /* =========================================================
-       1. Font Sizes (小, 中, 大) - Scaled via Root Font Size
-       ========================================================= */
+    /* 1. Font Sizes (小, 中, 大) */
     html.font-sm { font-size: 14px !important; }
     html.font-md { font-size: 16px !important; }
     html.font-lg { font-size: 18.5px !important; }
@@ -60,10 +58,7 @@ html_template = """<!DOCTYPE html>
       #appContent { filter: none !important; }
     }
 
-    /* =========================================================
-       2. Themes: Light (淺色), Dark (深色), Soft Green (淡綠)
-       ========================================================= */
-    /* Light Theme (Default) */
+    /* 2. Themes: Light (淺色), Dark (深色), Soft Green (淡綠) */
     html.theme-light body {
       background-color: #f8fafc;
       color: #1e293b;
@@ -148,15 +143,21 @@ html_template = """<!DOCTYPE html>
       --tw-ring-color: #22c55e !important;
     }
 
-    /* Badges */
-    .badge-exam { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-    .badge-holiday { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-    .badge-activity { background-color: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
-    .badge-meeting { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
-    .badge-routine { background-color: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
-    .badge-admin { background-color: #ede9fe; color: #5b21b6; border: 1px solid #ddd6fe; }
+    /* Category Badges (含新增的 朝會, 週會, 訓育組) */
+    .badge-assembly { background-color: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }   /* 朝會 */
+    .badge-weekly { background-color: #ede9fe; color: #5b21b6; border: 1px solid #ddd6fe; }     /* 週會 */
+    .badge-discipline { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; } /* 訓育組 */
+    .badge-exam { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }       /* 考試 */
+    .badge-holiday { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }    /* 假日 */
+    .badge-activity { background-color: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }   /* 活動 */
+    .badge-meeting { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }    /* 重要校務 */
+    .badge-routine { background-color: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }    /* 例行集會 */
+    .badge-admin { background-color: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }      /* 校務行政 */
 
     /* Dark Mode Badges */
+    html.theme-dark .badge-assembly { background-color: #7c2d12; color: #fed7aa; border-color: #9a3412; }
+    html.theme-dark .badge-weekly { background-color: #4c1d95; color: #ddd6fe; border-color: #5b21b6; }
+    html.theme-dark .badge-discipline { background-color: #075985; color: #bae6fd; border-color: #0369a1; }
     html.theme-dark .badge-exam { background-color: #7f1d1d; color: #fecaca; border-color: #991b1b; }
     html.theme-dark .badge-holiday { background-color: #14532d; color: #bbf7d0; border-color: #166534; }
     html.theme-dark .badge-activity { background-color: #312e81; color: #c7d2fe; border-color: #3730a3; }
@@ -342,7 +343,7 @@ html_template = """<!DOCTYPE html>
           <!-- Search Input -->
           <div class="relative w-full sm:max-w-md">
             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-            <input type="text" id="searchInput" placeholder="搜尋事項、處室、關鍵字 (例如：段考、露營、體檢、補考...)" 
+            <input type="text" id="searchInput" placeholder="搜尋事項、處室、關鍵字 (例如：朝會、週會、訓育組、段考...)" 
               class="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
               oninput="handleSearch()">
             <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
@@ -365,15 +366,8 @@ html_template = """<!DOCTYPE html>
 
         <!-- Filters: Department, Month, Tag -->
         <div class="pt-3 border-t border-slate-100 flex flex-wrap gap-2 items-center text-xs">
-          <span class="text-slate-500 font-medium mr-1" id="filterDeptLabel"><i class="fa-solid fa-filter mr-1"></i>處室篩選：</span>
+          <span class="text-slate-500 font-medium mr-1" id="filterDeptLabel"><i class="fa-solid fa-filter mr-1"></i>處室/組別：</span>
           <div id="deptFilters" class="flex flex-wrap gap-1.5">
-            <!-- Rendered dynamically -->
-          </div>
-        </div>
-
-        <div class="flex flex-wrap gap-2 items-center text-xs">
-          <span class="text-slate-500 font-medium mr-1" id="filterMonthLabel"><i class="fa-regular fa-calendar mr-1"></i>月份切換：</span>
-          <div id="monthFilters" class="flex flex-wrap gap-1.5">
             <!-- Rendered dynamically -->
           </div>
         </div>
@@ -381,6 +375,13 @@ html_template = """<!DOCTYPE html>
         <div class="flex flex-wrap gap-2 items-center text-xs">
           <span class="text-slate-500 font-medium mr-1" id="filterTagLabel"><i class="fa-solid fa-tags mr-1"></i>事項分類：</span>
           <div id="tagFilters" class="flex flex-wrap gap-1.5">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2 items-center text-xs">
+          <span class="text-slate-500 font-medium mr-1" id="filterMonthLabel"><i class="fa-regular fa-calendar mr-1"></i>月份切換：</span>
+          <div id="monthFilters" class="flex flex-wrap gap-1.5">
             <!-- Rendered dynamically -->
           </div>
         </div>
@@ -408,10 +409,8 @@ html_template = """<!DOCTYPE html>
             </h2>
             <span class="text-xs px-2 py-0.5 rounded bg-sky-100 text-sky-800 font-medium">共 21 週</span>
           </div>
-          <div class="text-xs text-slate-500 flex items-center gap-3" id="legendBadges">
-            <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> 考試測驗</span>
-            <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> 放假節日</span>
-            <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> 活動競賽</span>
+          <div class="text-xs text-slate-500 flex flex-wrap items-center gap-2 sm:gap-3" id="legendBadges">
+            <!-- Rendered dynamically -->
           </div>
         </div>
 
@@ -491,6 +490,11 @@ html_template = """<!DOCTYPE html>
             <span class="font-medium">學期週次：</span>
             <span id="modalWeek" class="text-slate-800">-</span>
           </div>
+          <div class="flex items-center gap-2 text-slate-700" id="modalSectionRow">
+            <i class="fa-solid fa-users text-emerald-600 w-4"></i>
+            <span class="font-medium">主辦組別：</span>
+            <span id="modalSection" class="text-slate-800 font-semibold">-</span>
+          </div>
         </div>
         <div>
           <span class="text-xs font-medium text-slate-500">原始公文記載內容：</span>
@@ -524,9 +528,9 @@ html_template = """<!DOCTYPE html>
     const THEME_COLOR_KEY = 'ntjh_theme_color';
     const THEME_STYLE_KEY = 'ntjh_theme_style';
 
-    let currentFontSize = localStorage.getItem(FONT_KEY) || 'md'; // 'sm', 'md', 'lg'
-    let currentThemeColor = localStorage.getItem(THEME_COLOR_KEY) || 'light'; // 'light', 'dark', 'green'
-    let currentThemeStyle = localStorage.getItem(THEME_STYLE_KEY) || 'normal'; // 'normal', 'cute'
+    let currentFontSize = localStorage.getItem(FONT_KEY) || 'md';
+    let currentThemeColor = localStorage.getItem(THEME_COLOR_KEY) || 'light';
+    let currentThemeStyle = localStorage.getItem(THEME_STYLE_KEY) || 'normal';
 
     function checkPassword() {
       const input = document.getElementById('pwdInput').value.trim();
@@ -577,9 +581,7 @@ html_template = """<!DOCTYPE html>
       }
     })();
 
-    // =========================================================
-    // Preference Switcher Functions: Font Size, Theme, Style
-    // =========================================================
+    // Preference Functions
     function setFontSize(size) {
       currentFontSize = size;
       localStorage.setItem(FONT_KEY, size);
@@ -588,7 +590,6 @@ html_template = """<!DOCTYPE html>
       html.classList.remove('font-sm', 'font-md', 'font-lg');
       html.classList.add(`font-${size}`);
 
-      // Update button states
       ['sm', 'md', 'lg'].forEach(s => {
         const btn = document.getElementById(`font-${s}-btn`);
         if (s === size) {
@@ -607,7 +608,6 @@ html_template = """<!DOCTYPE html>
       html.classList.remove('theme-light', 'theme-dark', 'theme-green');
       html.classList.add(`theme-${color}`);
 
-      // Update button states
       ['light', 'dark', 'green'].forEach(c => {
         const btn = document.getElementById(`theme-${c}-btn`);
         if (c === color) {
@@ -626,7 +626,6 @@ html_template = """<!DOCTYPE html>
       html.classList.remove('style-normal', 'style-cute');
       html.classList.add(`style-${style}`);
 
-      // Update button states
       ['normal', 'cute'].forEach(s => {
         const btn = document.getElementById(`style-${s}-btn`);
         if (s === style) {
@@ -645,19 +644,16 @@ html_template = """<!DOCTYPE html>
     function applyStyleTextChanges() {
       const isCute = currentThemeStyle === 'cute';
       
-      // Header & brand
       document.getElementById('topBrandTitle').textContent = isCute ? '🏫 南投國中 115學年度行事曆系統 🎈' : '南投國中 115學年度行事曆系統';
       document.getElementById('headerBadge').textContent = isCute ? '🎒 115學年度 (2026~2027)' : '115學年度 (2026~2027)';
       document.getElementById('headerSubSchool').textContent = isCute ? '🏫 南投縣立南投國民中學 ✨' : '南投縣立南投國民中學';
       document.getElementById('headerMainTitle').textContent = isCute ? '🌟 全校第一學期行事曆查詢系統 📅' : '全校第一學期行事曆互動查詢系統';
       
-      // Action buttons
       document.getElementById('btnTextExcel').textContent = isCute ? '📊 下載 Excel (.xlsx)' : '下載 Excel (.xlsx)';
       document.getElementById('btnTextIcs').textContent = isCute ? '🗓️ 匯出 .ICS' : '匯出 .ICS';
       document.getElementById('btnTextPrint').textContent = isCute ? '🖨️ 列印' : '列印';
       document.getElementById('btnTextLock').textContent = isCute ? '🔒 鎖定' : '鎖定';
 
-      // Milestone banner
       document.getElementById('milestoneBannerTitle').textContent = isCute ? '🎯 焦點時程速覽：' : '焦點時程速覽：';
       document.getElementById('mTitle1').textContent = isCute ? '✏️ 第一次段考' : '第一次段考';
       document.getElementById('mTitle2').textContent = isCute ? '📖 第二次段考' : '第二次段考';
@@ -665,17 +661,22 @@ html_template = """<!DOCTYPE html>
       document.getElementById('mTitle4').textContent = isCute ? '⛄ 休業式 / 寒假' : '休業式 / 寒假';
       document.getElementById('mTitle5').textContent = isCute ? '🏅 全校運動會 (暫定)' : '全校運動會 (暫定)';
 
-      // Table titles
       document.getElementById('weeklyTableTitle').textContent = isCute ? '🌸 南投國中 115學年度第一學期 完整週次行事曆 🌸' : '南投國中 115學年度第一學期 完整週次行事曆';
       document.getElementById('thDept1').textContent = isCute ? '📚 教務處 / 進修部' : '教務處 / 進修部';
       document.getElementById('thDept2').textContent = isCute ? '🏃 學務處' : '學務處';
       document.getElementById('thDept3').textContent = isCute ? '💖 輔導室 / 總務處' : '輔導室 / 總務處';
 
       document.getElementById('legendBadges').innerHTML = isCute ? `
+        <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-orange-400"></span> 📢 朝會</span>
+        <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span> 👥 週會</span>
+        <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span> 🚩 訓育組</span>
         <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> ✏️ 考試測驗</span>
         <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> 🌴 放假節日</span>
         <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> 🏆 活動競賽</span>
       ` : `
+        <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-orange-400"></span> 朝會</span>
+        <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span> 週會</span>
+        <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span> 訓育組</span>
         <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> 考試測驗</span>
         <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> 放假節日</span>
         <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> 活動競賽</span>
@@ -686,12 +687,14 @@ html_template = """<!DOCTYPE html>
     function getCuteEmojiForEvent(ev) {
       if (currentThemeStyle !== 'cute') return '';
       const text = `${ev.title} ${ev.original_text} ${ev.tag}`;
+      if (ev.is_morning_assembly || text.includes('朝會')) return '📢 ';
+      if (ev.is_weekly_assembly || text.includes('週會')) return '👥 ';
+      if (ev.is_discipline || ev.section === '訓育組') return '🚩 ';
       if (text.includes('段考') || text.includes('複習考') || text.includes('補考') || text.includes('測驗')) return '✏️ ';
       if (text.includes('放假') || text.includes('補假') || text.includes('中秋') || text.includes('國慶') || text.includes('元旦') || text.includes('行憲')) return '🎉 ';
       if (text.includes('運動會') || text.includes('比賽') || text.includes('競賽') || text.includes('舞蹈') || text.includes('音樂')) return '🏆 ';
       if (text.includes('露營') || text.includes('戶外教育')) return '⛺ ';
       if (text.includes('晨讀') || text.includes('書展') || text.includes('圖書館')) return '📖 ';
-      if (text.includes('朝會') || text.includes('週會') || text.includes('宣導')) return '📢 ';
       if (text.includes('疫苗') || text.includes('體檢') || text.includes('視力')) return '🩺 ';
       if (text.includes('美展') || text.includes('書法') || text.includes('美感')) return '🎨 ';
       if (text.includes('家長') || text.includes('親師') || text.includes('演講') || text.includes('座談')) return '👨‍👩‍👧‍👦 ';
@@ -704,6 +707,7 @@ html_template = """<!DOCTYPE html>
     function formatDeptLabel(dept) {
       if (currentThemeStyle !== 'cute') return dept;
       if (dept === '全部') return '🌈 全部處室';
+      if (dept === '學務處-訓育組') return '🚩 學務處-訓育組';
       if (dept.includes('教務')) return '📚 教務處/進修部';
       if (dept.includes('學務')) return '🏃 學務處';
       if (dept.includes('輔導') || dept.includes('總務')) return '💖 輔導室/總務處';
@@ -728,6 +732,9 @@ html_template = """<!DOCTYPE html>
       if (currentThemeStyle !== 'cute') return tag;
       const cuteTagMap = {
         '全部': '✨ 全部類別',
+        '朝會': '📢 朝會',
+        '週會': '👥 週會',
+        '訓育組': '🚩 訓育組',
         '重要校務': '📌 重要校務',
         '考試測驗': '✏️ 考試測驗',
         '放假節日': '🌴 放假節日',
@@ -738,7 +745,7 @@ html_template = """<!DOCTYPE html>
       return cuteTagMap[tag] || tag;
     }
 
-    let currentView = 'weekly'; // 'weekly' or 'timeline'
+    let currentView = 'weekly';
     let selectedDept = '全部';
     let selectedMonth = 'all';
     let selectedTag = '全部';
@@ -757,9 +764,25 @@ html_template = """<!DOCTYPE html>
       const deptContainer = document.getElementById('deptFilters');
       deptContainer.innerHTML = CALENDAR_DATA.departments.map(dept => {
         const active = dept === selectedDept;
+        const isDiscipline = dept === '學務處-訓育組';
+        const activeClass = isDiscipline ? 'bg-sky-700 text-white shadow-sm' : 'bg-sky-600 text-white shadow-sm';
         return `<button onclick="setDept('${dept}')" class="px-2.5 py-1 rounded-lg transition font-medium ${
-          active ? 'bg-sky-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+          active ? activeClass : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
         }">${formatDeptLabel(dept)}</button>`;
+      }).join('');
+
+      // Tags
+      const tagContainer = document.getElementById('tagFilters');
+      tagContainer.innerHTML = CALENDAR_DATA.tags.map(t => {
+        const active = t === selectedTag;
+        let activeBg = 'bg-indigo-600 text-white shadow-sm';
+        if (t === '朝會') activeBg = 'bg-orange-600 text-white shadow-sm';
+        if (t === '週會') activeBg = 'bg-purple-600 text-white shadow-sm';
+        if (t === '訓育組') activeBg = 'bg-sky-600 text-white shadow-sm';
+
+        return `<button onclick="setTag('${t}')" class="px-2.5 py-1 rounded-lg transition font-medium ${
+          active ? activeBg : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+        }">${formatTagLabel(t)}</button>`;
       }).join('');
 
       // Months
@@ -769,15 +792,6 @@ html_template = """<!DOCTYPE html>
         return `<button onclick="setMonth('${m.id}')" class="px-2.5 py-1 rounded-lg transition font-medium ${
           active ? 'bg-sky-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
         }">${formatMonthLabel(m)}</button>`;
-      }).join('');
-
-      // Tags
-      const tagContainer = document.getElementById('tagFilters');
-      tagContainer.innerHTML = CALENDAR_DATA.tags.map(t => {
-        const active = t === selectedTag;
-        return `<button onclick="setTag('${t}')" class="px-2.5 py-1 rounded-lg transition font-medium ${
-          active ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-        }">${formatTagLabel(t)}</button>`;
       }).join('');
     }
 
@@ -831,19 +845,40 @@ html_template = """<!DOCTYPE html>
       renderCalendar();
     }
 
-    // Filter logic
+    // Filter logic with direct support for 訓育組, 朝會, 週會
     function getFilteredEvents() {
       return CALENDAR_DATA.events.filter(ev => {
-        if (selectedDept !== '全部' && ev.department !== selectedDept) return false;
+        // Department / Section matching
+        if (selectedDept !== '全部') {
+          if (selectedDept === '學務處-訓育組') {
+            const isMatch = ev.department === '學務處' && (ev.section === '訓育組' || ev.is_discipline || ev.tag === '朝會' || ev.tag === '週會' || ev.tag === '訓育組');
+            if (!isMatch) return false;
+          } else {
+            if (ev.department !== selectedDept) return false;
+          }
+        }
         
+        // Month matching
         if (selectedMonth !== 'all') {
           if (!ev.month || ev.month.toString() !== selectedMonth) return false;
         }
 
-        if (selectedTag !== '全部' && ev.tag !== selectedTag) return false;
+        // Tag matching (with special support for 訓育組, 朝會, 週會)
+        if (selectedTag !== '全部') {
+          if (selectedTag === '朝會') {
+            if (!ev.is_morning_assembly && ev.tag !== '朝會' && !ev.title.includes('朝會')) return false;
+          } else if (selectedTag === '週會') {
+            if (!ev.is_weekly_assembly && ev.tag !== '週會' && !ev.title.includes('週會')) return false;
+          } else if (selectedTag === '訓育組') {
+            if (!ev.is_discipline && ev.section !== '訓育組' && ev.tag !== '訓育組') return false;
+          } else {
+            if (ev.tag !== selectedTag) return false;
+          }
+        }
 
+        // Search Query
         if (searchQuery) {
-          const content = `${ev.title} ${ev.original_text} ${ev.department} ${ev.week} ${ev.date_display} ${ev.tag}`.toLowerCase();
+          const content = `${ev.title} ${ev.original_text} ${ev.department} ${ev.section || ''} ${ev.week} ${ev.date_display} ${ev.tag}`.toLowerCase();
           if (!content.includes(searchQuery)) return false;
         }
 
@@ -853,6 +888,9 @@ html_template = """<!DOCTYPE html>
 
     function getTagClass(tag) {
       switch (tag) {
+        case '朝會': return 'badge-assembly';
+        case '週會': return 'badge-weekly';
+        case '訓育組': return 'badge-discipline';
         case '考試測驗': return 'badge-exam';
         case '放假節日': return 'badge-holiday';
         case '活動競賽': return 'badge-activity';
@@ -868,7 +906,12 @@ html_template = """<!DOCTYPE html>
       
       const summaryElem = document.getElementById('filterSummary');
       const isCute = currentThemeStyle === 'cute';
-      summaryElem.innerHTML = `${isCute ? '✨ ' : ''}符合條件事項：<strong class="text-sky-700 font-bold">${filteredEvents.length}</strong> 項 (共 ${CALENDAR_DATA.events.length} 項)`;
+      let currentFilterLabel = '';
+      if (selectedTag !== '全部') currentFilterLabel += `【${formatTagLabel(selectedTag)}】`;
+      if (selectedDept !== '全部') currentFilterLabel += `【${formatDeptLabel(selectedDept)}】`;
+      if (selectedMonth !== 'all') currentFilterLabel += `【${selectedMonth}月】`;
+
+      summaryElem.innerHTML = `${isCute ? '✨ ' : ''}符合條件事項${currentFilterLabel}：<strong class="text-sky-700 font-bold">${filteredEvents.length}</strong> 項 (共 ${CALENDAR_DATA.events.length} 項)`;
 
       if (currentView === 'weekly') {
         renderWeeklyTable(filteredEvents);
@@ -920,6 +963,7 @@ html_template = """<!DOCTYPE html>
                 <div class="flex items-center gap-1.5 mb-0.5 flex-wrap">
                   ${e.date_display ? `<span class="font-bold text-[11px] text-slate-800">${e.date_display}</span>` : ''}
                   <span class="text-[10px] px-1.5 py-0.2 rounded font-medium ${tagStyle}">${formatTagLabel(e.tag)}</span>
+                  ${e.section && e.section !== '一般' ? `<span class="text-[9px] px-1 py-0.1 rounded bg-slate-100 text-slate-500 border border-slate-200">${e.section}</span>` : ''}
                 </div>
                 <div class="text-xs text-slate-700 leading-snug font-normal">${cuteEmoji}${highlightText(e.title, searchQuery)}</div>
               </div>
@@ -995,8 +1039,11 @@ html_template = """<!DOCTYPE html>
         return `
           <div onclick="openModal(${e.id})" class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-sm hover:shadow-md transition hover:-translate-y-0.5 cursor-pointer flex flex-col justify-between">
             <div>
-              <div class="flex items-center justify-between gap-2 mb-2">
-                <span class="text-xs px-2.5 py-0.5 rounded-full font-semibold ${tagStyle}">${formatTagLabel(e.tag)}</span>
+              <div class="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-xs px-2.5 py-0.5 rounded-full font-semibold ${tagStyle}">${formatTagLabel(e.tag)}</span>
+                  ${e.section && e.section !== '一般' ? `<span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 font-medium">${e.section}</span>` : ''}
+                </div>
                 <span class="text-xs px-2 py-0.5 rounded-md font-medium border ${deptColor}">${formatDeptLabel(e.department)}</span>
               </div>
               <h3 class="text-sm font-bold text-slate-900 leading-snug mb-2">${cuteEmoji}${highlightText(e.title, searchQuery)}</h3>
@@ -1027,7 +1074,6 @@ html_template = """<!DOCTYPE html>
       if (!ev) return;
       currentModalEvent = ev;
 
-      const isCute = currentThemeStyle === 'cute';
       document.getElementById('modalTitle').textContent = `${getCuteEmojiForEvent(ev)}${ev.title}`;
       document.getElementById('modalDept').textContent = formatDeptLabel(ev.department);
       document.getElementById('modalTag').textContent = formatTagLabel(ev.tag);
@@ -1035,6 +1081,14 @@ html_template = """<!DOCTYPE html>
       document.getElementById('modalDate').textContent = `${ev.date_display} (${ev.start_date || '依週次日程'})`;
       document.getElementById('modalWeek').textContent = ev.week;
       document.getElementById('modalOriginal').textContent = ev.original_text;
+
+      const secElem = document.getElementById('modalSection');
+      if (ev.section && ev.section !== '一般') {
+        secElem.textContent = ev.section;
+        document.getElementById('modalSectionRow').classList.remove('hidden');
+      } else {
+        document.getElementById('modalSectionRow').classList.add('hidden');
+      }
 
       document.getElementById('detailModal').classList.remove('hidden');
     }
@@ -1048,7 +1102,8 @@ html_template = """<!DOCTYPE html>
     function addSingleEventToGoogle() {
       if (!currentModalEvent) return;
       const ev = currentModalEvent;
-      const title = encodeURIComponent(`[${ev.department}] ${ev.title}`);
+      const sectionInfo = ev.section && ev.section !== '一般' ? ` · ${ev.section}` : '';
+      const title = encodeURIComponent(`[${ev.department}${sectionInfo}] ${ev.title}`);
       const details = encodeURIComponent(`${ev.original_text} (南投國中115學年度第一學期 ${ev.week})`);
       
       let datesParam = '';
@@ -1083,7 +1138,8 @@ html_template = """<!DOCTYPE html>
         const d = String(endDateObj.getDate()).padStart(2, '0');
         const e = `${y}${m}${d}`;
 
-        icsContent += `BEGIN:VEVENT\\r\\nUID:ntjh-115-1-${ev.id}@school\\r\\nDTSTAMP:20260901T000000Z\\r\\nDTSTART;VALUE=DATE:${s}\\r\\nDTEND;VALUE=DATE:${e}\\r\\nSUMMARY:[${ev.department}] ${ev.title}\\r\\nDESCRIPTION:${ev.original_text.replace(/\\n/g, ' ')} (${ev.week})\\r\\nCATEGORIES:${ev.tag}\\r\\nSTATUS:CONFIRMED\\r\\nEND:VEVENT\\r\\n`;
+        const secInfo = ev.section && ev.section !== '一般' ? ` · ${ev.section}` : '';
+        icsContent += `BEGIN:VEVENT\\r\\nUID:ntjh-115-1-${ev.id}@school\\r\\nDTSTAMP:20260901T000000Z\\r\\nDTSTART;VALUE=DATE:${s}\\r\\nDTEND;VALUE=DATE:${e}\\r\\nSUMMARY:[${ev.department}${secInfo}] ${ev.title}\\r\\nDESCRIPTION:${ev.original_text.replace(/\\n/g, ' ')} (${ev.week})\\r\\nCATEGORIES:${ev.tag}\\r\\nSTATUS:CONFIRMED\\r\\nEND:VEVENT\\r\\n`;
       });
 
       icsContent += "END:VCALENDAR";
@@ -1104,4 +1160,4 @@ html_template = """<!DOCTYPE html>
 with open('index.html', 'w', encoding='utf-8') as f:
     f.write(html_template)
 
-print("Generated index.html with Font Size, Themes, and Cute Emoji styles successfully!")
+print("Generated index.html with 朝會, 週會, and 訓育組 filters successfully!")

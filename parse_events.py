@@ -22,7 +22,6 @@ for w in weeks:
     week_name = f"第{w['week']}週"
     week_num = w['week_num']
     
-    # Calculate approximate week Monday-Friday dates
     mon_day = w['days']['Mon']
     fri_day = w['days']['Fri']
     
@@ -52,17 +51,47 @@ for w in weeks:
             end_date = None
             date_display = ""
             tag = "重要校務"
+            section = "一般"
             
+            # Sub-section identification & tags
+            is_morning_assembly = '朝會' in item_clean
+            is_weekly_assembly = '週會' in item_clean
+            
+            is_discipline = (
+                is_morning_assembly or 
+                is_weekly_assembly or
+                any(k in item_clean for k in [
+                    '儀態形象', '法律巡迴', '隔宿露營', '戶外教育', '反毒', 
+                    '友善校園', '生活智慧王', '提案家', '愛我原本的樣子', 
+                    '攝影比賽', '教室佈置', '交通安全', '開學典禮'
+                ])
+            ) and ('教務' not in dept)
+
+            if is_discipline:
+                section = "訓育組"
+            elif any(k in item_clean for k in ['運動會', '體育', '舞蹈比賽']):
+                section = "體育組"
+            elif any(k in item_clean for k in ['疫苗', '體檢', '視力', '身高體重', '午餐', '大掃除', '有機蔬菜']):
+                section = "衛生組"
+            elif any(k in item_clean for k in ['段考', '複習考', '補考', '作業', '晨讀', '書展', '補考']):
+                section = "教學組/設備組"
+
             # Classification
-            if any(k in item_clean for k in ['段考', '複習考', '補考', '期中考', '期末考', '測驗', '智力測驗']):
+            if is_morning_assembly:
+                tag = "朝會"
+            elif is_weekly_assembly:
+                tag = "週會"
+            elif is_discipline:
+                tag = "訓育組"
+            elif any(k in item_clean for k in ['段考', '複習考', '補考', '期中考', '期末考', '測驗', '智力測驗']):
                 tag = "考試測驗"
             elif any(k in item_clean for k in ['放假', '補假', '中秋節', '國慶日', '開國紀念日', '行憲紀念日']):
                 tag = "放假節日"
-            elif any(k in item_clean for k in ['晨讀', '朝會', '週會', '宣導', '儀態形象']):
+            elif any(k in item_clean for k in ['晨讀', '宣導', '儀態形象']):
                 tag = "例行集會"
             elif any(k in item_clean for k in ['比賽', '競賽', '美展', '運動會', '博覽會', '露營', '戶外教育', '得勝者', '技藝課程', '講座', '演講', '音樂比賽', '舞蹈比賽', '環境知識']):
                 tag = "活動競賽"
-            elif any(k in item_clean for k in ['會議', '會報', '親師座談', '家長委員', '截止', '註冊', '減免', '開學', '休業式', '大掃除', '體檢', '疫苗', '收件', '領取', '退件', '贈報']):
+            elif any(k in item_clean for k in ['會議', '會報', '親師座談', '家長委員', '截止', '註冊', '減免', '休業式', '大掃除', '體檢', '疫苗', '收件', '領取', '退件', '贈報']):
                 tag = "校務行政"
                 
             m_range = range_pattern.match(item_clean) or weird_range_pattern.match(item_clean)
@@ -110,7 +139,6 @@ for w in weeks:
                             # Fallback using week info
                             title = item_clean
                             date_display = f"第{w['week']}週"
-                            # Guess month from week
                             if week_num <= 5:
                                 y, m = 2026, 9
                             elif week_num <= 9:
@@ -143,6 +171,10 @@ for w in weeks:
                 'week': week_name,
                 'week_num': week_num,
                 'department': clean_dept,
+                'section': section,
+                'is_morning_assembly': is_morning_assembly,
+                'is_weekly_assembly': is_weekly_assembly,
+                'is_discipline': is_discipline,
                 'tag': tag,
                 'title': title,
                 'original_text': item_clean,
@@ -170,8 +202,6 @@ def generate_ics(events):
         s_date = ev['start_date'].replace('-', '')
         e_date = ev['end_date'].replace('-', '')
         
-        # All-day event end date in ICS is exclusive (+1 day)
-        # If single day, DTEND can be s_date + 1 day
         import datetime
         dt_start = datetime.date.fromisoformat(ev['start_date'])
         dt_end = datetime.date.fromisoformat(ev['end_date']) + datetime.timedelta(days=1)
@@ -182,7 +212,7 @@ def generate_ics(events):
             f"DTSTAMP:20260901T000000Z",
             f"DTSTART;VALUE=DATE:{dt_start.strftime('%Y%m%d')}",
             f"DTEND;VALUE=DATE:{dt_end.strftime('%Y%m%d')}",
-            f"SUMMARY:[{ev['department']}] {ev['title']}",
+            f"SUMMARY:[{ev['department']}{' · ' + ev['section'] if ev['section'] != '一般' else ''}] {ev['title']}",
             f"DESCRIPTION:{ev['original_text']} ({ev['week']})",
             f"CATEGORIES:{ev['tag']}",
             "STATUS:CONFIRMED",
@@ -200,8 +230,8 @@ full_data = {
     'subtitle': '核定日期：115.08.28 | 民國115年 (2026 Fall ~ 2027 Winter)',
     'weeks': weeks,
     'events': events,
-    'departments': ['全部', '教務處/進修部', '學務處', '輔導室/總務處'],
-    'tags': ['全部', '重要校務', '考試測驗', '放假節日', '例行集會', '活動競賽', '校務行政'],
+    'departments': ['全部', '學務處', '學務處-訓育組', '教務處/進修部', '輔導室/總務處'],
+    'tags': ['全部', '朝會', '週會', '訓育組', '考試測驗', '放假節日', '活動競賽', '重要校務', '例行集會', '校務行政'],
     'months': [
         {'id': 'all', 'label': '全部月份'},
         {'id': '8', 'label': '8月 (2026)'},
@@ -216,4 +246,4 @@ full_data = {
 with open('calendar_data.json', 'w', encoding='utf-8') as f:
     json.dump(full_data, f, ensure_ascii=False, indent=2)
 
-print("Saved calendar_data.json and ntjh_calendar_11501.ics")
+print("Saved calendar_data.json and ntjh_calendar_11501.ics with 朝會, 週會, 訓育組")

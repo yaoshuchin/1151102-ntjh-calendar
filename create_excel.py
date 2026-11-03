@@ -7,7 +7,6 @@ with open('calendar_data.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 wb = openpyxl.Workbook()
-# Remove default sheet
 wb.remove(wb.active)
 
 # Color definitions
@@ -28,6 +27,9 @@ fill_white = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="so
 
 # Category fills
 fills_tag = {
+    "朝會": PatternFill(start_color="FED7AA", end_color="FED7AA", fill_type="solid"),     # Amber/Orange
+    "週會": PatternFill(start_color="DDD6FE", end_color="DDD6FE", fill_type="solid"),     # Purple
+    "訓育組": PatternFill(start_color="BAE6FD", end_color="BAE6FD", fill_type="solid"),   # Sky blue
     "考試測驗": PatternFill(start_color="FEE2E2", end_color="FEE2E2", fill_type="solid"), # Light red
     "放假節日": PatternFill(start_color="DCFCE7", end_color="DCFCE7", fill_type="solid"), # Light green
     "活動競賽": PatternFill(start_color="E0E7FF", end_color="E0E7FF", fill_type="solid"), # Light indigo
@@ -36,6 +38,9 @@ fills_tag = {
     "校務行政": PatternFill(start_color="EDE9FE", end_color="EDE9FE", fill_type="solid")  # Light purple
 }
 fonts_tag = {
+    "朝會": Font(name="微軟正黑體", size=10, bold=True, color="9A3412"),
+    "週會": Font(name="微軟正黑體", size=10, bold=True, color="5B21B6"),
+    "訓育組": Font(name="微軟正黑體", size=10, bold=True, color="0369A1"),
     "考試測驗": Font(name="微軟正黑體", size=10, bold=True, color="991B1B"),
     "放假節日": Font(name="微軟正黑體", size=10, bold=True, color="166534"),
     "活動競賽": Font(name="微軟正黑體", size=10, bold=True, color="3730A3"),
@@ -58,19 +63,19 @@ ws1 = wb.create_sheet(title="行事曆事項檢索清單")
 ws1.views.sheetView[0].showGridLines = True
 
 # Title block
-ws1.merge_cells("A1:I1")
-ws1["A1"] = "南投縣立南投國民中學 115學年度第一學期 行事曆事項檢索清單"
+ws1.merge_cells("A1:K1")
+ws1["A1"] = "南投縣立南投國民中學 115學年度第一學期 行事曆事項檢索清單（含訓育組/朝會/週會分類）"
 ws1["A1"].font = font_title
 ws1["A1"].alignment = Alignment(horizontal="left", vertical="center")
 ws1.row_dimensions[1].height = 28
 
-ws1.merge_cells("A2:I2")
-ws1["A2"] = "核定日期：115.08.28 | 本表已啟用「自動篩選」，點擊標題列箭頭即可依處室、月份、類別或關鍵字即時篩選"
+ws1.merge_cells("A2:K2")
+ws1["A2"] = "核定日期：115.08.28 | 本表已啟用「自動篩選」，點擊標題列箭頭即可依處室、組別、月份、類別(朝會/週會/訓育組等)或關鍵字即時篩選"
 ws1["A2"].font = font_sub
 ws1["A2"].alignment = Alignment(horizontal="left", vertical="center")
 ws1.row_dimensions[2].height = 18
 
-headers1 = ["編號", "週次", "月份", "日期區間", "負責處室", "事項類別", "事項名稱", "起始日期", "結束日期", "原始公文記載備註"]
+headers1 = ["編號", "週次", "月份", "日期區間", "負責處室", "主辦組別", "事項分類", "事項名稱", "起始日期", "結束日期", "原始公文記載備註"]
 header_row1 = 4
 ws1.row_dimensions[header_row1].height = 26
 
@@ -104,46 +109,57 @@ for idx, ev in enumerate(events, start=1):
     
     c5 = ws1.cell(row=r, column=5, value=ev["department"])
     c5.alignment = align_center
-    
-    tag = ev["tag"]
-    c6 = ws1.cell(row=r, column=6, value=tag)
+
+    # Column 6: 主辦組別
+    sec = ev.get("section", "一般")
+    c6 = ws1.cell(row=r, column=6, value=sec)
     c6.alignment = align_center
-    if tag in fills_tag:
-        c6.fill = fills_tag[tag]
-        c6.font = fonts_tag[tag]
+    if sec == "訓育組":
+        c6.font = Font(name="微軟正黑體", size=10, bold=True, color="0369A1")
+        c6.fill = PatternFill(start_color="E0F2FE", end_color="E0F2FE", fill_type="solid")
     else:
         c6.font = font_regular
         c6.fill = base_fill
-
-    c7 = ws1.cell(row=r, column=7, value=ev["title"])
-    c7.alignment = align_left
-    c7.font = font_regular
     
-    c8 = ws1.cell(row=r, column=8, value=ev["start_date"] or "")
-    c8.alignment = align_center
+    # Column 7: 事項分類
+    tag = ev["tag"]
+    c7 = ws1.cell(row=r, column=7, value=tag)
+    c7.alignment = align_center
+    if tag in fills_tag:
+        c7.fill = fills_tag[tag]
+        c7.font = fonts_tag[tag]
+    else:
+        c7.font = font_regular
+        c7.fill = base_fill
+
+    c8 = ws1.cell(row=r, column=8, value=ev["title"])
+    c8.alignment = align_left
     c8.font = font_regular
     
-    c9 = ws1.cell(row=r, column=9, value=ev["end_date"] or "")
+    c9 = ws1.cell(row=r, column=9, value=ev["start_date"] or "")
     c9.alignment = align_center
     c9.font = font_regular
     
-    c10 = ws1.cell(row=r, column=10, value=ev["original_text"])
-    c10.alignment = align_left
+    c10 = ws1.cell(row=r, column=10, value=ev["end_date"] or "")
+    c10.alignment = align_center
     c10.font = font_regular
+    
+    c11 = ws1.cell(row=r, column=11, value=ev["original_text"])
+    c11.alignment = align_left
+    c11.font = font_regular
 
-    for col_i in [1, 2, 3, 4, 5, 7, 8, 9, 10]:
+    for col_i in range(1, 12):
         c = ws1.cell(row=r, column=col_i)
         c.border = border_all
-        if col_i != 6:
+        if col_i not in [6, 7]:
             c.fill = base_fill
-    ws1.cell(row=r, column=6).border = border_all
 
 # Enable AutoFilter on header row
-ws1.auto_filter.ref = f"A{header_row1}:J{header_row1 + len(events)}"
+ws1.auto_filter.ref = f"A{header_row1}:K{header_row1 + len(events)}"
 ws1.freeze_panes = f"A{header_row1 + 1}"
 
 # Auto-fit column widths
-col_widths1 = {1: 8, 2: 12, 3: 8, 4: 16, 5: 16, 6: 14, 7: 38, 8: 13, 9: 13, 10: 45}
+col_widths1 = {1: 8, 2: 12, 3: 8, 4: 16, 5: 16, 6: 14, 7: 14, 8: 38, 9: 13, 10: 13, 11: 45}
 for col_i, w in col_widths1.items():
     ws1.column_dimensions[get_column_letter(col_i)].width = w
 
@@ -183,7 +199,6 @@ for idx, w in enumerate(weeks, start=1):
     days = w["days"]
     raw_ev = w["raw_events"]
     
-    # Calculate row height based on content
     lines_count = max(
         len(raw_ev.get("教務處.進修部", "").split('\n')),
         len(raw_ev.get("學務處", "").split('\n')),
@@ -263,16 +278,16 @@ for col_idx, h in enumerate(headers3, start=1):
     cell.border = border_all
 
 milestones = [
-    ("開學典禮", "全校開學典禮暨友善校園宣導", "115.08.31 (一)", "第 1 週", "學務處 / 教務處"),
+    ("開學典禮", "全校開學典禮暨友善校園宣導", "115.08.31 (一)", "第 1 週", "學務處 / 訓育組"),
     ("親師活動", "全校親師座談會", "115.09.19 (六)", "第 3 週", "輔導室 / 總務處"),
     ("國定假日", "中秋節放假", "115.09.25 (五)", "第 4 週", "國定假日"),
     ("國定假日", "國慶日補假", "115.10.09 (五)", "第 6 週", "國定假日"),
     ("定期評量", "第一次段考", "115.10.13 (二) ~ 10.14 (三)", "第 7 週", "教務處 / 學務處"),
-    ("校外教學", "三年級戶外教育", "115.10.21 (三) ~ 10.23 (五)", "第 8 週", "學務處"),
-    ("學生體驗", "二年級隔宿露營", "115.10.27 (二) ~ 10.28 (三)", "第 9 週", "學務處"),
-    ("全縣賽會", "南投縣第74屆全縣運動會", "115.11.07 (六) ~ 11.10 (二)", "第 10 週", "學務處"),
+    ("校外教學", "三年級戶外教育", "115.10.21 (三) ~ 10.23 (五)", "第 8 週", "學務處 / 訓育組"),
+    ("學生體驗", "二年級隔宿露營", "115.10.27 (二) ~ 10.28 (三)", "第 9 週", "學務處 / 訓育組"),
+    ("全縣賽會", "南投縣第74屆全縣運動會", "115.11.07 (六) ~ 11.10 (二)", "第 10 週", "學務處 / 體育組"),
     ("定期評量", "第二次段考", "115.12.02 (三) ~ 12.03 (四)", "第 14 週", "教務處 / 學務處"),
-    ("全校活動", "全校運動會 (暫定)", "115.12.18 (五)", "第 16 週", "學務處"),
+    ("全校活動", "全校運動會 (暫定)", "115.12.18 (五)", "第 16 週", "學務處 / 體育組"),
     ("紀念節日", "行憲紀念日", "115.12.25 (五)", "第 17 週", "國定節日"),
     ("國定假日", "中華民國開國紀念日 (元旦)", "116.01.01 (五)", "第 18 週", "國定假日"),
     ("定期評量", "第三次段考", "116.01.18 (一) ~ 01.19 (二)", "第 21 週", "教務處 / 學務處"),
@@ -329,4 +344,4 @@ for col_i, w in col_widths3.items():
 # Save file
 excel_filename = "南投國中115學年度第一學期行事曆.xlsx"
 wb.save(excel_filename)
-print(f"Excel file created successfully: {excel_filename}")
+print(f"Excel file updated successfully: {excel_filename}")
