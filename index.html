@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>南投國中 115學年度第一學期行事曆</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
+              800: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; color: black !important; font-size: 11pt; }
+      .print-shadow-none { box-shadow: none !important; }
+      table { page-break-inside: auto; }
+      tr { page-break-inside: avoid; page-break-after: auto; }
+      #passwordOverlay { display: none !important; }
+      #appContent { filter: none !important; }
+    }
+    .badge-exam { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .badge-holiday { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .badge-activity { background-color: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
+    .badge-meeting { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .badge-routine { background-color: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
+    .badge-admin { background-color: #ede9fe; color: #5b21b6; border: 1px solid #ddd6fe; }
+    
+    /* Scrollbar styling */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white relative">
+
+  <!-- Password Lock Overlay -->
+  <div id="passwordOverlay" class="fixed inset-0 z-50 bg-slate-900/85 backdrop-blur-md flex items-center justify-center p-4 transition-opacity duration-300">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-2xl border border-slate-100 text-center space-y-5">
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center text-2xl shadow-inner">
+        <i class="fa-solid fa-lock"></i>
+      </div>
+      <div>
+        <h2 class="text-lg font-bold text-slate-800">南投國中 115學年度行事曆</h2>
+        <p class="text-xs text-slate-500 mt-1">此為校內專屬系統，請輸入通行密碼以瀏覽</p>
+      </div>
+      <div class="space-y-3">
+        <div class="relative">
+          <input type="password" id="pwdInput" maxlength="20" placeholder="請輸入通行密碼"
+            class="w-full text-center tracking-widest text-lg py-2.5 px-4 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
+            onkeydown="if(event.key==='Enter') checkPassword()">
+        </div>
+        <p id="pwdError" class="hidden text-xs text-rose-600 font-medium">密碼錯誤，請重新輸入！</p>
+        <button onclick="checkPassword()" class="w-full py-2.5 px-4 bg-sky-600 hover:bg-sky-700 active:scale-[0.98] text-white font-semibold rounded-xl text-sm transition shadow-sm">
+          驗證進入
+        </button>
+      </div>
+      <div class="text-[11px] text-slate-400">
+        南投縣立南投國民中學
+      </div>
+    </div>
+  </div>
+
+  <div id="appContent" class="flex flex-col min-h-screen transition duration-300">
+    <!-- Top Announcement / Bar -->
+    <header class="bg-gradient-to-r from-sky-800 via-sky-700 to-indigo-900 text-white shadow-lg sticky top-0 z-30">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-xl shadow-inner">
+              <i class="fa-solid fa-graduation-cap text-sky-200"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-sky-500/30 text-sky-200 border border-sky-400/30 font-medium">115學年度 (2026~2027)</span>
+                <span class="text-xs text-sky-200/80">南投縣立南投國民中學</span>
+              </div>
+              <h1 class="text-lg sm:text-xl font-bold tracking-tight">全校第一學期行事曆互動查詢系統</h1>
+            </div>
+          </div>
+
+          <!-- Action tools -->
+          <div class="flex items-center gap-2 self-start md:self-auto no-print">
+            <a href="南投國中115學年度第一學期行事曆.xlsx" download class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-700/80 hover:bg-emerald-700 border border-emerald-400/40 text-xs font-medium text-white transition shadow-sm active:scale-95" title="下載精緻排版 Excel 表格 (.xlsx)">
+              <i class="fa-solid fa-file-excel text-emerald-200"></i>
+              <span>下載 Excel (.xlsx)</span>
+            </a>
+            <button onclick="downloadICS()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-600/80 hover:bg-sky-600 border border-sky-400/40 text-xs font-medium text-white transition shadow-sm active:scale-95" title="匯入 Google 日曆 / Apple 行事曆">
+              <i class="fa-solid fa-calendar-plus text-sky-200"></i>
+              <span>匯出 .ICS</span>
+            </button>
+            <button onclick="window.print()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700/80 hover:bg-slate-700 border border-slate-500/40 text-xs font-medium text-white transition shadow-sm active:scale-95" title="友善排版列印">
+              <i class="fa-solid fa-print text-slate-300"></i>
+              <span>列印</span>
+            </button>
+            <button onclick="lockCalendar()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-700/80 hover:bg-slate-700 border border-slate-500/40 text-xs font-medium text-white transition shadow-sm active:scale-95" title="鎖定頁面">
+              <i class="fa-solid fa-lock text-slate-300"></i>
+              <span class="hidden sm:inline">鎖定</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Key Dates Highlights Banner -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 w-full no-print">
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        <div class="flex items-center gap-2 text-slate-700 text-sm font-semibold shrink-0">
+          <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+          <span>焦點時程速覽：</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2.5 flex-1">
+          <div class="bg-rose-50 border border-rose-200/80 rounded-xl p-2.5 text-center">
+            <div class="text-[11px] font-bold text-rose-800">第一次段考</div>
+            <div class="text-xs font-semibold text-rose-600">10/13(二) ~ 10/14(三)</div>
+            <div class="text-[10px] text-rose-500">第 7 週</div>
+          </div>
+          <div class="bg-amber-50 border border-amber-200/80 rounded-xl p-2.5 text-center">
+            <div class="text-[11px] font-bold text-amber-800">第二次段考</div>
+            <div class="text-xs font-semibold text-amber-600">12/02(三) ~ 12/03(四)</div>
+            <div class="text-[10px] text-amber-500">第 14 週</div>
+          </div>
+          <div class="bg-indigo-50 border border-indigo-200/80 rounded-xl p-2.5 text-center">
+            <div class="text-[11px] font-bold text-indigo-800">第三次段考</div>
+            <div class="text-xs font-semibold text-indigo-600">1/18(一) ~ 1/19(二)</div>
+            <div class="text-[10px] text-indigo-500">第 21 週</div>
+          </div>
+          <div class="bg-emerald-50 border border-emerald-200/80 rounded-xl p-2.5 text-center">
+            <div class="text-[11px] font-bold text-emerald-800">休業式 / 寒假</div>
+            <div class="text-xs font-semibold text-emerald-600">1/20(三) 休業式</div>
+            <div class="text-[10px] text-emerald-500">1/21 寒假開始</div>
+          </div>
+          <div class="hidden lg:block bg-purple-50 border border-purple-200/80 rounded-xl p-2.5 text-center">
+            <div class="text-[11px] font-bold text-purple-800">全校運動會 (暫定)</div>
+            <div class="text-xs font-semibold text-purple-600">12/18(五)</div>
+            <div class="text-[10px] text-purple-500">第 16 週</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Control & Filter Area -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 w-full no-print">
+      <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 space-y-4">
+        
+        <!-- Top Row: Search & View Toggle -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+          <!-- Search Input -->
+          <div class="relative w-full sm:max-w-md">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+            <input type="text" id="searchInput" placeholder="搜尋事項、處室、關鍵字 (例如：段考、露營、體檢、補考...)" 
+              class="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
+              oninput="handleSearch()">
+            <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+          </div>
+
+          <!-- View Mode Switcher -->
+          <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 self-stretch sm:self-auto">
+            <button id="viewWeeklyBtn" onclick="switchView('weekly')" class="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-sky-700 shadow-sm transition">
+              <i class="fa-solid fa-table-cells"></i>
+              <span>週次行事曆表</span>
+            </button>
+            <button id="viewTimelineBtn" onclick="switchView('timeline')" class="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition">
+              <i class="fa-solid fa-list-check"></i>
+              <span>清單卡片速查</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filters: Department, Month, Tag -->
+        <div class="pt-3 border-t border-slate-100 flex flex-wrap gap-2 items-center text-xs">
+          <span class="text-slate-500 font-medium mr-1"><i class="fa-solid fa-filter mr-1"></i>處室篩選：</span>
+          <div id="deptFilters" class="flex flex-wrap gap-1.5">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2 items-center text-xs">
+          <span class="text-slate-500 font-medium mr-1"><i class="fa-regular fa-calendar mr-1"></i>月份切換：</span>
+          <div id="monthFilters" class="flex flex-wrap gap-1.5">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2 items-center text-xs">
+          <span class="text-slate-500 font-medium mr-1"><i class="fa-solid fa-tags mr-1"></i>事項分類：</span>
+          <div id="tagFilters" class="flex flex-wrap gap-1.5">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Result counter and active filter badges -->
+        <div class="flex items-center justify-between text-xs text-slate-500 pt-1">
+          <div id="filterSummary">顯示全部行事曆事項</div>
+          <button onclick="resetFilters()" class="text-sky-600 hover:text-sky-700 hover:underline">
+            <i class="fa-solid fa-rotate-left mr-1"></i>重設所有篩選
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Calendar Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex-1 w-full">
+      
+      <!-- 1. Weekly Grid View (Matches original school schedule format) -->
+      <div id="weeklyViewContainer" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 bg-slate-50/80 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <h2 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
+              <i class="fa-solid fa-calendar-week text-sky-600"></i>
+              <span>南投國中 115學年度第一學期 完整週次行事曆</span>
+            </h2>
+            <span class="text-xs px-2 py-0.5 rounded bg-sky-100 text-sky-800 font-medium">共 21 週</span>
+          </div>
+          <div class="text-xs text-slate-500 flex items-center gap-3">
+            <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> 考試測驗</span>
+            <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> 放假節日</span>
+            <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> 活動競賽</span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-sky-900 text-white font-medium border-b border-sky-950">
+                <th class="py-2.5 px-2 text-center w-14 border-r border-sky-800">月份</th>
+                <th class="py-2.5 px-2 text-center w-12 border-r border-sky-800">週次</th>
+                <th class="py-2.5 px-1.5 text-center w-8 border-r border-sky-800 bg-sky-950/40">日</th>
+                <th class="py-2.5 px-1.5 text-center w-8 border-r border-sky-800">一</th>
+                <th class="py-2.5 px-1.5 text-center w-8 border-r border-sky-800">二</th>
+                <th class="py-2.5 px-1.5 text-center w-8 border-r border-sky-800">三</th>
+                <th class="py-2.5 px-1.5 text-center w-8 border-r border-sky-800">四</th>
+                <th class="py-2.5 px-1.5 text-center w-8 border-r border-sky-800">五</th>
+                <th class="py-2.5 px-1.5 text-center w-8 border-r border-sky-800 bg-sky-950/40">六</th>
+                <th class="py-2.5 px-3.5 border-r border-sky-800 w-[28%]">教務處 / 進修部</th>
+                <th class="py-2.5 px-3.5 border-r border-sky-800 w-[30%]">學務處</th>
+                <th class="py-2.5 px-3.5 w-[26%]">輔導室 / 總務處</th>
+              </tr>
+            </thead>
+            <tbody id="weeklyTableBody" class="divide-y divide-slate-200">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 2. Timeline / Agenda List View -->
+      <div id="timelineViewContainer" class="hidden space-y-4">
+        <div id="timelineCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Rendered by JS -->
+        </div>
+        <div id="emptyResultsNotice" class="hidden text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300">
+          <i class="fa-solid fa-inbox text-4xl text-slate-300 mb-3"></i>
+          <p class="text-slate-600 font-medium">沒有找到符合條件的行事曆事項</p>
+          <p class="text-xs text-slate-400 mt-1">請嘗試變更搜尋關鍵字或清除篩選條件</p>
+          <button onclick="resetFilters()" class="mt-4 px-4 py-1.5 bg-sky-600 text-white rounded-lg text-xs font-medium hover:bg-sky-700 transition">
+            重設所有篩選
+          </button>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 mt-8 no-print">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500 space-y-1">
+        <p class="font-medium text-slate-700">南投縣立南投國民中學 115學年度第一學期行事曆</p>
+        <p>資料依據校方 115.08.28 核定完整版行事曆自動解析建置 • 支援手機、平板、電腦與一鍵匯入 Google 日曆</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Detail Modal -->
+  <div id="detailModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 transform transition-all">
+      <div class="flex items-start justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span id="modalTag" class="px-2.5 py-0.5 rounded-full text-xs font-semibold badge-activity">活動</span>
+          <span id="modalDept" class="text-xs text-slate-500 font-medium">學務處</span>
+        </div>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <div class="py-4 space-y-3">
+        <h3 id="modalTitle" class="text-base font-bold text-slate-900 leading-snug">事項名稱</h3>
+        <div class="bg-slate-50 rounded-xl p-3 space-y-2 text-xs">
+          <div class="flex items-center gap-2 text-slate-700">
+            <i class="fa-regular fa-calendar-check text-sky-600 w-4"></i>
+            <span class="font-medium">預定日期：</span>
+            <span id="modalDate" class="font-semibold text-slate-900">-</span>
+          </div>
+          <div class="flex items-center gap-2 text-slate-700">
+            <i class="fa-solid fa-timeline text-indigo-600 w-4"></i>
+            <span class="font-medium">學期週次：</span>
+            <span id="modalWeek" class="text-slate-800">-</span>
+          </div>
+        </div>
+        <div>
+          <span class="text-xs font-medium text-slate-500">原始公文記載內容：</span>
+          <p id="modalOriginal" class="mt-1 p-3 bg-slate-100 rounded-xl text-xs text-slate-700 leading-relaxed font-mono whitespace-pre-wrap"></p>
+        </div>
+      </div>
+      <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+        <button onclick="addSingleEventToGoogle()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-xs font-medium text-white transition">
+          <i class="fa-brands fa-google"></i>
+          <span>加入 Google 日曆</span>
+        </button>
+        <button onclick="closeModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-medium text-slate-700 transition">
+          關閉
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Raw Data Injection -->
+  <script>
+    const CALENDAR_DATA = {"title": "南投縣立南投國民中學 115學年度第一學期行事曆", "subtitle": "核定日期：115.08.28 | 民國115年 (2026 Fall ~ 2027 Winter)", "weeks": [{"week": "一", "week_num": 1, "month": "8       9", "days": {"Sun": "30", "Mon": "31", "Tue": "1", "Wed": "2", "Thu": "3", "Fri": "4", "Sat": "5"}, "raw_events": {"教務處.進修部": "8/31(一) ~ 9/2(三)教科書減免\n8/31進修部開學典禮", "學務處": "8/31(五)開學典禮暨友善校園反毒反黑 \n    反霸凌宣導(8/31第一節與9/4第 \n    三節互調)\n8/31(一)午餐用餐禮儀及防疫宣導", "輔導室.總務處": "8/31(一) 未開暑輔班班級冷氣股長記得9:00至總務處領取遙控器及卡片。\n9/3(四)學生美展校內收件截止\n9/4(五)三年級技藝課程(電機、餐旅、食品、家政職群)開始上課"}}, {"week": "二", "week_num": 2, "month": "8       9", "days": {"Sun": "6", "Mon": "7", "Tue": "8", "Wed": "9", "Thu": "10", "Fri": "11", "Sat": "12"}, "raw_events": {"教務處.進修部": "9/8.9(二三)三年級複習考(1.2冊)\n9/10(四)晨讀\n9月書展", "學務處": "9/11(五)全校大掃除\n9/11(五)-9/30(三)南投縣音樂比賽報名\n9/7-/9/11  全校測量身高體重視力", "輔導室.總務處": "9/7(一)人間福報開始贈報"}}, {"week": "三", "week_num": 3, "month": "8       9", "days": {"Sun": "13", "Mon": "14", "Tue": "15", "Wed": "16", "Thu": "17", "Fri": "18", "Sat": "19"}, "raw_events": {"教務處.進修部": "9/14(一)第八節學藝活動開始\n9/14(一)第六節數學補考\n9/15(二)第二節自然補考\n9/15(二)第六節英文補考\n9/16(三)第六節國文補考\n9/17(四)第二節社會補考\n9/17(四)晨讀\n9/17(四)國語文縣賽\n9/14.17(一、四)ELTA開始入班", "學務處": "9/15(二)朝會/學生儀態形象教育\n9/18(五)法律巡迴演講\n9/19(六)環境知識競賽-南投縣初賽\n(埔里暨南大學)\n9/14-/9/18  全校測量身高體重視力", "輔導室.總務處": "9/19(六)全校親師座談會"}}, {"week": "四", "week_num": 4, "month": "8       9", "days": {"Sun": "20", "Mon": "21", "Tue": "22", "Wed": "23", "Thu": "24", "Fri": "25", "Sat": "26"}, "raw_events": {"教務處.進修部": "9/24(四)晨讀", "學務處": "9/25(五)中秋節\n9/21-/9/24  全校測量身高體重視力\n9/24(四)第一次午餐委員會議(暫定)", "輔導室.總務處": "9/21(一)9:21a.m.消防地震演練(全校)\n9/23(三)-9/24(四)學生美展\n送件(竹山國小)"}}, {"week": "五", "week_num": 5, "month": "9      10", "days": {"Sun": "27", "Mon": "28", "Tue": "29", "Wed": "30", "Thu": "1", "Fri": "2", "Sat": "3"}, "raw_events": {"教務處.進修部": "9/30進修部團保辦理及學生名冊報府", "學務處": "9/30(三)下午二年級全體同學施打HPV\n        疫苗\n9/30(三)導師會報\n10/2(五)『築夢琢藝』-115年中臺灣青 \n         少年藝術育成基地計畫\n9/29-/10/2  全校測量身高體重視力", "輔導室.總務處": "9/29(二)本週早自習擇一天播放班級性別平等教育宣導短片\n9/29(二)~10/2(五)一年級得勝者課程開始上課\n9/30(三)學生美展書法現場比賽(竹山國小)"}}, {"week": "六", "week_num": 6, "month": "9      10", "days": {"Sun": "4", "Mon": "5", "Tue": "6", "Wed": "7", "Thu": "8", "Fri": "9", "Sat": "10"}, "raw_events": {"教務處.進修部": "", "學務處": "10/6(二)朝會/學生儀態形象教育\n10/9(五)國慶日補假\n11/6(五)午餐滿意度調查", "輔導室.總務處": ""}}, {"week": "七", "week_num": 7, "month": "9      10", "days": {"Sun": "11", "Mon": "12", "Tue": "13", "Wed": "14", "Thu": "15", "Fri": "16", "Sat": "17"}, "raw_events": {"教務處.進修部": "10/13.14(二三)第一次段考\n10/15(四)晨讀\n10/16(五)圖書館閱讀講座", "學務處": "10/13(二)-10/14(三)第一次段考\n10/15 全校施打流感疫苗(預定) (日期排定後另行公布)", "輔導室.總務處": "10/15(四)家長委員大會，請各班家長委員出席，謝謝。"}}, {"week": "八", "week_num": 8, "month": "9      10", "days": {"Sun": "18", "Mon": "19", "Tue": "20", "Wed": "21", "Thu": "22", "Fri": "23", "Sat": "24"}, "raw_events": {"教務處.進修部": "10/20(二)第一次段考成績輸入截止\n10/19.20(一二)三年級拍攝大頭照\n10/22(四)晨讀\n10/23(三)國語文競賽(校內)", "學務處": "10/21(三)-10/23(五)三年級戶外教育\n10/23(五)反毒電影入班宣導", "輔導室.總務處": ""}}, {"week": "九", "week_num": 9, "month": "9      10", "days": {"Sun": "25", "Mon": "26", "Tue": "27", "Wed": "28", "Thu": "29", "Fri": "30", "Sat": "31"}, "raw_events": {"教務處.進修部": "10/29(四)晨讀", "學務處": "10/26(一)光復節補假\n10/27(二)-10/28(三)二年級隔宿露營", "輔導室.總務處": "10/30(五)放學前各年級冷氣股長\n交回冷氣遙控器。\n10/30一年級智力測驗\n10/28(三)-10/30(五)美展退件"}}, {"week": "十", "week_num": 10, "month": "11", "days": {"Sun": "1", "Mon": "2", "Tue": "3", "Wed": "4", "Thu": "5", "Fri": "6", "Sat": "7"}, "raw_events": {"教務處.進修部": "11/5(四)晨讀\n11/5(四)科展截止收件\n進修部期中考週", "學務處": "11/4(三)導師會報\n11/6(五)教室佈置比賽評分\n11/7(六)-11/10(二)南投縣74屆全縣運\n    動會\n11/5(四)-11/6(五)全國學生舞蹈比賽\n11月預計辦理一年級新生體檢(日期排定後另行公布)\n11/6(五)午餐滿意度調查", "輔導室.總務處": "11/6(五)週會—生涯暨性別平等教育分享講座(第3節；一、二年級學生) \n11/2(一)預定美術班一年級美感課程"}}, {"week": "十一", "week_num": 11, "month": "11", "days": {"Sun": "8", "Mon": "9", "Tue": "10", "Wed": "11", "Thu": "12", "Fri": "13", "Sat": "14"}, "raw_events": {"教務處.進修部": "11月書展", "學務處": "11/10(二)朝會/學生儀態形象教育\n11/10.11.12.17.18.19南投縣音樂比賽\n11/13(五)營養教育宣導\n11/14(六)環境知識競賽115年全國賽(國立\n         高雄科技大學)", "輔導室.總務處": "11/13(五)美術班評鑑"}}, {"week": "十二", "week_num": 12, "month": "11", "days": {"Sun": "15", "Mon": "16", "Tue": "17", "Wed": "18", "Thu": "19", "Fri": "20", "Sat": "21"}, "raw_events": {"教務處.進修部": "", "學務處": "", "輔導室.總務處": "11/20(五)週會—生涯暨生命教育分享講座(第3節；一、二年級學生)"}}, {"week": "十三", "week_num": 13, "month": "11    12", "days": {"Sun": "22", "Mon": "23", "Tue": "24", "Wed": "25", "Thu": "26", "Fri": "27", "Sat": "28"}, "raw_events": {"教務處.進修部": "", "學務處": "11/24(二)朝會\n11/27(五)生活智慧王-舊物再用提案家\n         影片宣導(一年級)", "輔導室.總務處": ""}}, {"week": "十四", "week_num": 14, "month": "11    12", "days": {"Sun": "29", "Mon": "30", "Tue": "1", "Wed": "2", "Thu": "3", "Fri": "4", "Sat": "5"}, "raw_events": {"教務處.進修部": "12/2.3(三四)第二次段考", "學務處": "12/2(三)-12/3(四)第二次段考\n12/4(五)愛我原本的樣子", "輔導室.總務處": ""}}, {"week": "十五", "week_num": 15, "month": "12", "days": {"Sun": "6", "Mon": "7", "Tue": "8", "Wed": "9", "Thu": "10", "Fri": "11", "Sat": "12"}, "raw_events": {"教務處.進修部": "12/9(三)第二次段考成績輸入截止\n12/10(四)晨讀\n12/11(五)英語文競賽(校內)", "學務處": "12/7(一)生活智慧王—舊物再用提案家\n    學習單比賽收件截止(一年級必參加)\n12/7(一)校園你我他攝影比賽收件截止\n        (二年級必參加)\n12/9(三) 導師會報\n\n12/11(五)全校運動會(預備週)", "輔導室.總務處": ""}}, {"week": "十六", "week_num": 16, "month": "12", "days": {"Sun": "13", "Mon": "14", "Tue": "15", "Wed": "16", "Thu": "17", "Fri": "18", "Sat": "19"}, "raw_events": {"教務處.進修部": "12/14(一)優良作業登記\n12/17(四)晨讀", "學務處": "12/15(二)朝會/學生儀態形象教育\n12/18(五)全校運動會(暫定)", "輔導室.總務處": ""}}, {"week": "十七", "week_num": 17, "month": "12", "days": {"Sun": "20", "Mon": "21", "Tue": "22", "Wed": "23", "Thu": "24", "Fri": "25", "Sat": "26"}, "raw_events": {"教務處.進修部": "12/23.24(三四)三年級複習考(1-4冊)\n12/24(四)晨讀", "學務處": "12/25(五)行憲紀念日", "輔導室.總務處": "12/22(二)~1/8(五)一年級得勝者課程結束"}}, {"week": "十八", "week_num": 18, "month": "12", "days": {"Sun": "27", "Mon": "28", "Tue": "29", "Wed": "30", "Thu": "31", "Fri": "1", "Sat": "2"}, "raw_events": {"教務處.進修部": "12/31(四)晨讀", "學務處": "12/29(二)朝會\n12/30(三)花台美化綠化-種植有機蔬菜截止\n1/1(五)中華民國開國紀念日", "輔導室.總務處": ""}}, {"week": "十九", "week_num": 19, "month": "1", "days": {"Sun": "3", "Mon": "4", "Tue": "5", "Wed": "6", "Thu": "7", "Fri": "8", "Sat": "9"}, "raw_events": {"教務處.進修部": "", "學務處": "1/5(二)朝會/學生儀態形象教育\n1/8(五)交通安全寶腦暨尊重生命宣導\n1/8(五)第二次午餐委員會議(暫定)", "輔導室.總務處": "1/6(三)上午升學博覽會\n1/8(五)三年級技藝課程(電機、餐旅、食品、家政職群)最後一次上課"}}, {"week": "二十", "week_num": 20, "month": "1", "days": {"Sun": "10", "Mon": "11", "Tue": "12", "Wed": "13", "Thu": "14", "Fri": "15", "Sat": "16"}, "raw_events": {"教務處.進修部": "1/15(五)第八節學藝活動最後一天", "學務處": "", "輔導室.總務處": "1/15(五)人間福報贈報最後一天"}}, {"week": "二十一", "week_num": 21, "month": "1", "days": {"Sun": "17", "Mon": "18", "Tue": "19", "Wed": "20", "Thu": "21", "Fri": "22", "Sat": "23"}, "raw_events": {"教務處.進修部": "1/18.19(一二)第三次段考\n1/20(三)第三次段考成績輸入截止\n1/20(三)休業式\n進修部期末考週", "學務處": "1/18(一)-1/19(二)第三次段考\n1/20(三)全校大掃除、休業式", "輔導室.總務處": ""}}, {"week": "二十二", "week_num": 22, "month": "1", "days": {"Sun": "24", "Mon": "25", "Tue": "26", "Wed": "27", "Thu": "28", "Fri": "29", "Sat": "30"}, "raw_events": {"教務處.進修部": "", "學務處": "", "輔導室.總務處": ""}}, {"week": "二十三", "week_num": 23, "month": "1", "days": {"Sun": "31", "Mon": "", "Tue": "", "Wed": "", "Thu": "", "Fri": "", "Sat": ""}, "raw_events": {"教務處.進修部": "", "學務處": "", "輔導室.總務處": ""}}], "events": [{"id": 1, "week": "第一週", "week_num": 1, "department": "教務處/進修部", "tag": "校務行政", "title": "教科書減免", "original_text": "8/31(一) ~ 9/2(三)教科書減免", "date_display": "8/31 ~ 9/2", "start_date": "2026-08-31", "end_date": "2026-09-02", "month": 8}, {"id": 2, "week": "第一週", "week_num": 1, "department": "教務處/進修部", "tag": "校務行政", "title": "進修部開學典禮", "original_text": "8/31進修部開學典禮", "date_display": "8/31", "start_date": "2026-08-31", "end_date": "2026-08-31", "month": 8}, {"id": 3, "week": "第一週", "week_num": 1, "department": "學務處", "tag": "例行集會", "title": "開學典禮暨友善校園反毒反黑 反霸凌宣導(8/31第一節與9/4第 三節互調)", "original_text": "8/31(五)開學典禮暨友善校園反毒反黑 反霸凌宣導(8/31第一節與9/4第 三節互調)", "date_display": "8/31", "start_date": "2026-08-31", "end_date": "2026-08-31", "month": 8}, {"id": 4, "week": "第一週", "week_num": 1, "department": "學務處", "tag": "例行集會", "title": "午餐用餐禮儀及防疫宣導", "original_text": "8/31(一)午餐用餐禮儀及防疫宣導", "date_display": "8/31", "start_date": "2026-08-31", "end_date": "2026-08-31", "month": 8}, {"id": 5, "week": "第一週", "week_num": 1, "department": "輔導室/總務處", "tag": "校務行政", "title": "未開暑輔班班級冷氣股長記得9:00至總務處領取遙控器及卡片。", "original_text": "8/31(一) 未開暑輔班班級冷氣股長記得9:00至總務處領取遙控器及卡片。", "date_display": "8/31", "start_date": "2026-08-31", "end_date": "2026-08-31", "month": 8}, {"id": 6, "week": "第一週", "week_num": 1, "department": "輔導室/總務處", "tag": "活動競賽", "title": "學生美展校內收件截止", "original_text": "9/3(四)學生美展校內收件截止", "date_display": "9/3", "start_date": "2026-09-03", "end_date": "2026-09-03", "month": 9}, {"id": 7, "week": "第一週", "week_num": 1, "department": "輔導室/總務處", "tag": "活動競賽", "title": "三年級技藝課程(電機、餐旅、食品、家政職群)開始上課", "original_text": "9/4(五)三年級技藝課程(電機、餐旅、食品、家政職群)開始上課", "date_display": "9/4", "start_date": "2026-09-04", "end_date": "2026-09-04", "month": 9}, {"id": 8, "week": "第二週", "week_num": 2, "department": "教務處/進修部", "tag": "考試測驗", "title": "三年級複習考(1.2冊)", "original_text": "9/8.9(二三)三年級複習考(1.2冊)", "date_display": "9/8 ~ 9/9", "start_date": "2026-09-08", "end_date": "2026-09-09", "month": 9}, {"id": 9, "week": "第二週", "week_num": 2, "department": "教務處/進修部", "tag": "例行集會", "title": "晨讀", "original_text": "9/10(四)晨讀", "date_display": "9/10", "start_date": "2026-09-10", "end_date": "2026-09-10", "month": 9}, {"id": 10, "week": "第二週", "week_num": 2, "department": "教務處/進修部", "tag": "重要校務", "title": "9月書展", "original_text": "9月書展", "date_display": "9月份", "start_date": "2026-09-01", "end_date": "2026-09-28", "month": 9}, {"id": 11, "week": "第二週", "week_num": 2, "department": "學務處", "tag": "校務行政", "title": "全校大掃除", "original_text": "9/11(五)全校大掃除", "date_display": "9/11", "start_date": "2026-09-11", "end_date": "2026-09-11", "month": 9}, {"id": 12, "week": "第二週", "week_num": 2, "department": "學務處", "tag": "活動競賽", "title": "南投縣音樂比賽報名", "original_text": "9/11(五)-9/30(三)南投縣音樂比賽報名", "date_display": "9/11 ~ 9/30", "start_date": "2026-09-11", "end_date": "2026-09-30", "month": 9}, {"id": 13, "week": "第二週", "week_num": 2, "department": "學務處", "tag": "重要校務", "title": "全校測量身高體重視力", "original_text": "9/7-/9/11  全校測量身高體重視力", "date_display": "9/7 ~ 9/11", "start_date": "2026-09-07", "end_date": "2026-09-11", "month": 9}, {"id": 14, "week": "第二週", "week_num": 2, "department": "輔導室/總務處", "tag": "校務行政", "title": "人間福報開始贈報", "original_text": "9/7(一)人間福報開始贈報", "date_display": "9/7", "start_date": "2026-09-07", "end_date": "2026-09-07", "month": 9}, {"id": 15, "week": "第三週", "week_num": 3, "department": "教務處/進修部", "tag": "重要校務", "title": "第八節學藝活動開始", "original_text": "9/14(一)第八節學藝活動開始", "date_display": "9/14", "start_date": "2026-09-14", "end_date": "2026-09-14", "month": 9}, {"id": 16, "week": "第三週", "week_num": 3, "department": "教務處/進修部", "tag": "考試測驗", "title": "第六節數學補考", "original_text": "9/14(一)第六節數學補考", "date_display": "9/14", "start_date": "2026-09-14", "end_date": "2026-09-14", "month": 9}, {"id": 17, "week": "第三週", "week_num": 3, "department": "教務處/進修部", "tag": "考試測驗", "title": "第二節自然補考", "original_text": "9/15(二)第二節自然補考", "date_display": "9/15", "start_date": "2026-09-15", "end_date": "2026-09-15", "month": 9}, {"id": 18, "week": "第三週", "week_num": 3, "department": "教務處/進修部", "tag": "考試測驗", "title": "第六節英文補考", "original_text": "9/15(二)第六節英文補考", "date_display": "9/15", "start_date": "2026-09-15", "end_date": "2026-09-15", "month": 9}, {"id": 19, "week": "第三週", "week_num": 3, "department": "教務處/進修部", "tag": "考試測驗", "title": "第六節國文補考", "original_text": "9/16(三)第六節國文補考", "date_display": "9/16", "start_date": "2026-09-16", "end_date": "2026-09-16", "month": 9}, {"id": 20, "week": "第三週", "week_num": 3, "department": "教務處/進修部", "tag": "考試測驗", "title": "第二節社會補考", "original_text": "9/17(四)第二節社會補考", "date_display": "9/17", "start_date": "2026-09-17", "end_date": "2026-09-17", "month": 9}, {"id": 21, "week": "第三週", "week_num": 3, "department": "教務處/進修部", "tag": "例行集會", "title": "晨讀", "original_text": "9/17(四)晨讀", "date_display": "9/17", "start_date": "2026-09-17", "end_date": "2026-09-17", "month": 9}, {"id": 22, "week": "第三週", "week_num": 3, "department": "教務處/進修部", "tag": "重要校務", "title": "國語文縣賽", "original_text": "9/17(四)國語文縣賽", "date_display": "9/17", "start_date": "2026-09-17", "end_date": "2026-09-17", "month": 9}, {"id": 23, "week": "第三週", "week_num": 3, "department": "教務處/進修部", "tag": "重要校務", "title": "ELTA開始入班", "original_text": "9/14.17(一、四)ELTA開始入班", "date_display": "9/14 ~ 9/17", "start_date": "2026-09-14", "end_date": "2026-09-17", "month": 9}, {"id": 24, "week": "第三週", "week_num": 3, "department": "學務處", "tag": "例行集會", "title": "朝會/學生儀態形象教育", "original_text": "9/15(二)朝會/學生儀態形象教育", "date_display": "9/15", "start_date": "2026-09-15", "end_date": "2026-09-15", "month": 9}, {"id": 25, "week": "第三週", "week_num": 3, "department": "學務處", "tag": "活動競賽", "title": "法律巡迴演講", "original_text": "9/18(五)法律巡迴演講", "date_display": "9/18", "start_date": "2026-09-18", "end_date": "2026-09-18", "month": 9}, {"id": 26, "week": "第三週", "week_num": 3, "department": "學務處", "tag": "活動競賽", "title": "環境知識競賽-南投縣初賽 (埔里暨南大學)", "original_text": "9/19(六)環境知識競賽-南投縣初賽 (埔里暨南大學)", "date_display": "9/19", "start_date": "2026-09-19", "end_date": "2026-09-19", "month": 9}, {"id": 27, "week": "第三週", "week_num": 3, "department": "學務處", "tag": "重要校務", "title": "全校測量身高體重視力", "original_text": "9/14-/9/18  全校測量身高體重視力", "date_display": "9/14 ~ 9/18", "start_date": "2026-09-14", "end_date": "2026-09-18", "month": 9}, {"id": 28, "week": "第三週", "week_num": 3, "department": "輔導室/總務處", "tag": "校務行政", "title": "全校親師座談會", "original_text": "9/19(六)全校親師座談會", "date_display": "9/19", "start_date": "2026-09-19", "end_date": "2026-09-19", "month": 9}, {"id": 29, "week": "第四週", "week_num": 4, "department": "教務處/進修部", "tag": "例行集會", "title": "晨讀", "original_text": "9/24(四)晨讀", "date_display": "9/24", "start_date": "2026-09-24", "end_date": "2026-09-24", "month": 9}, {"id": 30, "week": "第四週", "week_num": 4, "department": "學務處", "tag": "放假節日", "title": "中秋節", "original_text": "9/25(五)中秋節", "date_display": "9/25", "start_date": "2026-09-25", "end_date": "2026-09-25", "month": 9}, {"id": 31, "week": "第四週", "week_num": 4, "department": "學務處", "tag": "重要校務", "title": "全校測量身高體重視力", "original_text": "9/21-/9/24  全校測量身高體重視力", "date_display": "9/21 ~ 9/24", "start_date": "2026-09-21", "end_date": "2026-09-24", "month": 9}, {"id": 32, "week": "第四週", "week_num": 4, "department": "學務處", "tag": "校務行政", "title": "第一次午餐委員會議(暫定)", "original_text": "9/24(四)第一次午餐委員會議(暫定)", "date_display": "9/24", "start_date": "2026-09-24", "end_date": "2026-09-24", "month": 9}, {"id": 33, "week": "第四週", "week_num": 4, "department": "輔導室/總務處", "tag": "重要校務", "title": "9:21a.m.消防地震演練(全校)", "original_text": "9/21(一)9:21a.m.消防地震演練(全校)", "date_display": "9/21", "start_date": "2026-09-21", "end_date": "2026-09-21", "month": 9}, {"id": 34, "week": "第四週", "week_num": 4, "department": "輔導室/總務處", "tag": "活動競賽", "title": "學生美展 送件(竹山國小)", "original_text": "9/23(三)-9/24(四)學生美展 送件(竹山國小)", "date_display": "9/23 ~ 9/24", "start_date": "2026-09-23", "end_date": "2026-09-24", "month": 9}, {"id": 35, "week": "第五週", "week_num": 5, "department": "教務處/進修部", "tag": "重要校務", "title": "進修部團保辦理及學生名冊報府", "original_text": "9/30進修部團保辦理及學生名冊報府", "date_display": "9/30", "start_date": "2026-09-30", "end_date": "2026-09-30", "month": 9}, {"id": 36, "week": "第五週", "week_num": 5, "department": "學務處", "tag": "校務行政", "title": "下午二年級全體同學施打HPV 疫苗", "original_text": "9/30(三)下午二年級全體同學施打HPV 疫苗", "date_display": "9/30", "start_date": "2026-09-30", "end_date": "2026-09-30", "month": 9}, {"id": 37, "week": "第五週", "week_num": 5, "department": "學務處", "tag": "校務行政", "title": "導師會報", "original_text": "9/30(三)導師會報", "date_display": "9/30", "start_date": "2026-09-30", "end_date": "2026-09-30", "month": 9}, {"id": 38, "week": "第五週", "week_num": 5, "department": "學務處", "tag": "重要校務", "title": "『築夢琢藝』-115年中臺灣青 少年藝術育成基地計畫", "original_text": "10/2(五)『築夢琢藝』-115年中臺灣青 少年藝術育成基地計畫", "date_display": "10/2", "start_date": "2026-10-02", "end_date": "2026-10-02", "month": 10}, {"id": 39, "week": "第五週", "week_num": 5, "department": "學務處", "tag": "重要校務", "title": "全校測量身高體重視力", "original_text": "9/29-/10/2  全校測量身高體重視力", "date_display": "9/29 ~ 10/2", "start_date": "2026-09-29", "end_date": "2026-10-02", "month": 9}, {"id": 40, "week": "第五週", "week_num": 5, "department": "輔導室/總務處", "tag": "例行集會", "title": "本週早自習擇一天播放班級性別平等教育宣導短片", "original_text": "9/29(二)本週早自習擇一天播放班級性別平等教育宣導短片", "date_display": "9/29", "start_date": "2026-09-29", "end_date": "2026-09-29", "month": 9}, {"id": 41, "week": "第五週", "week_num": 5, "department": "輔導室/總務處", "tag": "活動競賽", "title": "一年級得勝者課程開始上課", "original_text": "9/29(二)~10/2(五)一年級得勝者課程開始上課", "date_display": "9/29 ~ 10/2", "start_date": "2026-09-29", "end_date": "2026-10-02", "month": 9}, {"id": 42, "week": "第五週", "week_num": 5, "department": "輔導室/總務處", "tag": "活動競賽", "title": "學生美展書法現場比賽(竹山國小)", "original_text": "9/30(三)學生美展書法現場比賽(竹山國小)", "date_display": "9/30", "start_date": "2026-09-30", "end_date": "2026-09-30", "month": 9}, {"id": 43, "week": "第六週", "week_num": 6, "department": "學務處", "tag": "例行集會", "title": "朝會/學生儀態形象教育", "original_text": "10/6(二)朝會/學生儀態形象教育", "date_display": "10/6", "start_date": "2026-10-06", "end_date": "2026-10-06", "month": 10}, {"id": 44, "week": "第六週", "week_num": 6, "department": "學務處", "tag": "放假節日", "title": "國慶日補假", "original_text": "10/9(五)國慶日補假", "date_display": "10/9", "start_date": "2026-10-09", "end_date": "2026-10-09", "month": 10}, {"id": 45, "week": "第六週", "week_num": 6, "department": "學務處", "tag": "重要校務", "title": "午餐滿意度調查", "original_text": "11/6(五)午餐滿意度調查", "date_display": "11/6", "start_date": "2026-11-06", "end_date": "2026-11-06", "month": 11}, {"id": 46, "week": "第七週", "week_num": 7, "department": "教務處/進修部", "tag": "考試測驗", "title": "第一次段考", "original_text": "10/13.14(二三)第一次段考", "date_display": "10/13 ~ 10/14", "start_date": "2026-10-13", "end_date": "2026-10-14", "month": 10}, {"id": 47, "week": "第七週", "week_num": 7, "department": "教務處/進修部", "tag": "例行集會", "title": "晨讀", "original_text": "10/15(四)晨讀", "date_display": "10/15", "start_date": "2026-10-15", "end_date": "2026-10-15", "month": 10}, {"id": 48, "week": "第七週", "week_num": 7, "department": "教務處/進修部", "tag": "活動競賽", "title": "圖書館閱讀講座", "original_text": "10/16(五)圖書館閱讀講座", "date_display": "10/16", "start_date": "2026-10-16", "end_date": "2026-10-16", "month": 10}, {"id": 49, "week": "第七週", "week_num": 7, "department": "學務處", "tag": "考試測驗", "title": "第一次段考", "original_text": "10/13(二)-10/14(三)第一次段考", "date_display": "10/13 ~ 10/14", "start_date": "2026-10-13", "end_date": "2026-10-14", "month": 10}, {"id": 50, "week": "第七週", "week_num": 7, "department": "學務處", "tag": "校務行政", "title": "全校施打流感疫苗(預定) (日期排定後另行公布)", "original_text": "10/15 全校施打流感疫苗(預定) (日期排定後另行公布)", "date_display": "10/15", "start_date": "2026-10-15", "end_date": "2026-10-15", "month": 10}, {"id": 51, "week": "第七週", "week_num": 7, "department": "輔導室/總務處", "tag": "校務行政", "title": "家長委員大會，請各班家長委員出席，謝謝。", "original_text": "10/15(四)家長委員大會，請各班家長委員出席，謝謝。", "date_display": "10/15", "start_date": "2026-10-15", "end_date": "2026-10-15", "month": 10}, {"id": 52, "week": "第八週", "week_num": 8, "department": "教務處/進修部", "tag": "考試測驗", "title": "第一次段考成績輸入截止", "original_text": "10/20(二)第一次段考成績輸入截止", "date_display": "10/20", "start_date": "2026-10-20", "end_date": "2026-10-20", "month": 10}, {"id": 53, "week": "第八週", "week_num": 8, "department": "教務處/進修部", "tag": "重要校務", "title": "三年級拍攝大頭照", "original_text": "10/19.20(一二)三年級拍攝大頭照", "date_display": "10/19 ~ 10/20", "start_date": "2026-10-19", "end_date": "2026-10-20", "month": 10}, {"id": 54, "week": "第八週", "week_num": 8, "department": "教務處/進修部", "tag": "例行集會", "title": "晨讀", "original_text": "10/22(四)晨讀", "date_display": "10/22", "start_date": "2026-10-22", "end_date": "2026-10-22", "month": 10}, {"id": 55, "week": "第八週", "week_num": 8, "department": "教務處/進修部", "tag": "活動競賽", "title": "國語文競賽(校內)", "original_text": "10/23(三)國語文競賽(校內)", "date_display": "10/23", "start_date": "2026-10-23", "end_date": "2026-10-23", "month": 10}, {"id": 56, "week": "第八週", "week_num": 8, "department": "學務處", "tag": "活動競賽", "title": "三年級戶外教育", "original_text": "10/21(三)-10/23(五)三年級戶外教育", "date_display": "10/21 ~ 10/23", "start_date": "2026-10-21", "end_date": "2026-10-23", "month": 10}, {"id": 57, "week": "第八週", "week_num": 8, "department": "學務處", "tag": "例行集會", "title": "反毒電影入班宣導", "original_text": "10/23(五)反毒電影入班宣導", "date_display": "10/23", "start_date": "2026-10-23", "end_date": "2026-10-23", "month": 10}, {"id": 58, "week": "第九週", "week_num": 9, "department": "教務處/進修部", "tag": "例行集會", "title": "晨讀", "original_text": "10/29(四)晨讀", "date_display": "10/29", "start_date": "2026-10-29", "end_date": "2026-10-29", "month": 10}, {"id": 59, "week": "第九週", "week_num": 9, "department": "學務處", "tag": "放假節日", "title": "光復節補假", "original_text": "10/26(一)光復節補假", "date_display": "10/26", "start_date": "2026-10-26", "end_date": "2026-10-26", "month": 10}, {"id": 60, "week": "第九週", "week_num": 9, "department": "學務處", "tag": "活動競賽", "title": "二年級隔宿露營", "original_text": "10/27(二)-10/28(三)二年級隔宿露營", "date_display": "10/27 ~ 10/28", "start_date": "2026-10-27", "end_date": "2026-10-28", "month": 10}, {"id": 61, "week": "第九週", "week_num": 9, "department": "輔導室/總務處", "tag": "重要校務", "title": "放學前各年級冷氣股長 交回冷氣遙控器。", "original_text": "10/30(五)放學前各年級冷氣股長 交回冷氣遙控器。", "date_display": "10/30", "start_date": "2026-10-30", "end_date": "2026-10-30", "month": 10}, {"id": 62, "week": "第九週", "week_num": 9, "department": "輔導室/總務處", "tag": "考試測驗", "title": "一年級智力測驗", "original_text": "10/30一年級智力測驗", "date_display": "10/30", "start_date": "2026-10-30", "end_date": "2026-10-30", "month": 10}, {"id": 63, "week": "第九週", "week_num": 9, "department": "輔導室/總務處", "tag": "活動競賽", "title": "美展退件", "original_text": "10/28(三)-10/30(五)美展退件", "date_display": "10/28 ~ 10/30", "start_date": "2026-10-28", "end_date": "2026-10-30", "month": 10}, {"id": 64, "week": "第十週", "week_num": 10, "department": "教務處/進修部", "tag": "例行集會", "title": "晨讀", "original_text": "11/5(四)晨讀", "date_display": "11/5", "start_date": "2026-11-05", "end_date": "2026-11-05", "month": 11}, {"id": 65, "week": "第十週", "week_num": 10, "department": "教務處/進修部", "tag": "校務行政", "title": "科展截止收件", "original_text": "11/5(四)科展截止收件", "date_display": "11/5", "start_date": "2026-11-05", "end_date": "2026-11-05", "month": 11}, {"id": 66, "week": "第十週", "week_num": 10, "department": "教務處/進修部", "tag": "考試測驗", "title": "進修部期中考週", "original_text": "進修部期中考週", "date_display": "第十週", "start_date": "2026-11-02", "end_date": "2026-11-06", "month": 11}, {"id": 67, "week": "第十週", "week_num": 10, "department": "學務處", "tag": "校務行政", "title": "導師會報", "original_text": "11/4(三)導師會報", "date_display": "11/4", "start_date": "2026-11-04", "end_date": "2026-11-04", "month": 11}, {"id": 68, "week": "第十週", "week_num": 10, "department": "學務處", "tag": "活動競賽", "title": "教室佈置比賽評分", "original_text": "11/6(五)教室佈置比賽評分", "date_display": "11/6", "start_date": "2026-11-06", "end_date": "2026-11-06", "month": 11}, {"id": 69, "week": "第十週", "week_num": 10, "department": "學務處", "tag": "重要校務", "title": "南投縣74屆全縣運 動會", "original_text": "11/7(六)-11/10(二)南投縣74屆全縣運 動會", "date_display": "11/7 ~ 11/10", "start_date": "2026-11-07", "end_date": "2026-11-10", "month": 11}, {"id": 70, "week": "第十週", "week_num": 10, "department": "學務處", "tag": "活動競賽", "title": "全國學生舞蹈比賽", "original_text": "11/5(四)-11/6(五)全國學生舞蹈比賽", "date_display": "11/5 ~ 11/6", "start_date": "2026-11-05", "end_date": "2026-11-06", "month": 11}, {"id": 71, "week": "第十週", "week_num": 10, "department": "學務處", "tag": "校務行政", "title": "11月預計辦理一年級新生體檢(日期排定後另行公布)", "original_text": "11月預計辦理一年級新生體檢(日期排定後另行公布)", "date_display": "11月份", "start_date": "2026-11-01", "end_date": "2026-11-28", "month": 11}, {"id": 72, "week": "第十週", "week_num": 10, "department": "學務處", "tag": "重要校務", "title": "午餐滿意度調查", "original_text": "11/6(五)午餐滿意度調查", "date_display": "11/6", "start_date": "2026-11-06", "end_date": "2026-11-06", "month": 11}, {"id": 73, "week": "第十週", "week_num": 10, "department": "輔導室/總務處", "tag": "例行集會", "title": "週會—生涯暨性別平等教育分享講座(第3節；一、二年級學生)", "original_text": "11/6(五)週會—生涯暨性別平等教育分享講座(第3節；一、二年級學生)", "date_display": "11/6", "start_date": "2026-11-06", "end_date": "2026-11-06", "month": 11}, {"id": 74, "week": "第十週", "week_num": 10, "department": "輔導室/總務處", "tag": "重要校務", "title": "預定美術班一年級美感課程", "original_text": "11/2(一)預定美術班一年級美感課程", "date_display": "11/2", "start_date": "2026-11-02", "end_date": "2026-11-02", "month": 11}, {"id": 75, "week": "第十一週", "week_num": 11, "department": "教務處/進修部", "tag": "重要校務", "title": "11月書展", "original_text": "11月書展", "date_display": "11月份", "start_date": "2026-11-01", "end_date": "2026-11-28", "month": 11}, {"id": 76, "week": "第十一週", "week_num": 11, "department": "學務處", "tag": "例行集會", "title": "朝會/學生儀態形象教育", "original_text": "11/10(二)朝會/學生儀態形象教育", "date_display": "11/10", "start_date": "2026-11-10", "end_date": "2026-11-10", "month": 11}, {"id": 77, "week": "第十一週", "week_num": 11, "department": "學務處", "tag": "活動競賽", "title": "南投縣音樂比賽", "original_text": "11/10.11.12.17.18.19南投縣音樂比賽", "date_display": "11/10 ~ 11/19", "start_date": "2026-11-10", "end_date": "2026-11-19", "month": 11}, {"id": 78, "week": "第十一週", "week_num": 11, "department": "學務處", "tag": "例行集會", "title": "營養教育宣導", "original_text": "11/13(五)營養教育宣導", "date_display": "11/13", "start_date": "2026-11-13", "end_date": "2026-11-13", "month": 11}, {"id": 79, "week": "第十一週", "week_num": 11, "department": "學務處", "tag": "活動競賽", "title": "環境知識競賽115年全國賽(國立 高雄科技大學)", "original_text": "11/14(六)環境知識競賽115年全國賽(國立 高雄科技大學)", "date_display": "11/14", "start_date": "2026-11-14", "end_date": "2026-11-14", "month": 11}, {"id": 80, "week": "第十一週", "week_num": 11, "department": "輔導室/總務處", "tag": "重要校務", "title": "美術班評鑑", "original_text": "11/13(五)美術班評鑑", "date_display": "11/13", "start_date": "2026-11-13", "end_date": "2026-11-13", "month": 11}, {"id": 81, "week": "第十二週", "week_num": 12, "department": "輔導室/總務處", "tag": "例行集會", "title": "週會—生涯暨生命教育分享講座(第3節；一、二年級學生)", "original_text": "11/20(五)週會—生涯暨生命教育分享講座(第3節；一、二年級學生)", "date_display": "11/20", "start_date": "2026-11-20", "end_date": "2026-11-20", "month": 11}, {"id": 82, "week": "第十三週", "week_num": 13, "department": "學務處", "tag": "例行集會", "title": "朝會", "original_text": "11/24(二)朝會", "date_display": "11/24", "start_date": "2026-11-24", "end_date": "2026-11-24", "month": 11}, {"id": 83, "week": "第十三週", "week_num": 13, "department": "學務處", "tag": "例行集會", "title": "生活智慧王-舊物再用提案家 影片宣導(一年級)", "original_text": "11/27(五)生活智慧王-舊物再用提案家 影片宣導(一年級)", "date_display": "11/27", "start_date": "2026-11-27", "end_date": "2026-11-27", "month": 11}, {"id": 84, "week": "第十四週", "week_num": 14, "department": "教務處/進修部", "tag": "考試測驗", "title": "第二次段考", "original_text": "12/2.3(三四)第二次段考", "date_display": "12/2 ~ 12/3", "start_date": "2026-12-02", "end_date": "2026-12-03", "month": 12}, {"id": 85, "week": "第十四週", "week_num": 14, "department": "學務處", "tag": "考試測驗", "title": "第二次段考", "original_text": "12/2(三)-12/3(四)第二次段考", "date_display": "12/2 ~ 12/3", "start_date": "2026-12-02", "end_date": "2026-12-03", "month": 12}, {"id": 86, "week": "第十四週", "week_num": 14, "department": "學務處", "tag": "重要校務", "title": "愛我原本的樣子", "original_text": "12/4(五)愛我原本的樣子", "date_display": "12/4", "start_date": "2026-12-04", "end_date": "2026-12-04", "month": 12}, {"id": 87, "week": "第十五週", "week_num": 15, "department": "教務處/進修部", "tag": "考試測驗", "title": "第二次段考成績輸入截止", "original_text": "12/9(三)第二次段考成績輸入截止", "date_display": "12/9", "start_date": "2026-12-09", "end_date": "2026-12-09", "month": 12}, {"id": 88, "week": "第十五週", "week_num": 15, "department": "教務處/進修部", "tag": "例行集會", "title": "晨讀", "original_text": "12/10(四)晨讀", "date_display": "12/10", "start_date": "2026-12-10", "end_date": "2026-12-10", "month": 12}, {"id": 89, "week": "第十五週", "week_num": 15, "department": "教務處/進修部", "tag": "活動競賽", "title": "英語文競賽(校內)", "original_text": "12/11(五)英語文競賽(校內)", "date_display": "12/11", "start_date": "2026-12-11", "end_date": "2026-12-11", "month": 12}, {"id": 90, "week": "第十五週", "week_num": 15, "department": "學務處", "tag": "活動競賽", "title": "生活智慧王—舊物再用提案家 學習單比賽收件截止(一年級必參加)", "original_text": "12/7(一)生活智慧王—舊物再用提案家 學習單比賽收件截止(一年級必參加)", "date_display": "12/7", "start_date": "2026-12-07", "end_date": "2026-12-07", "month": 12}, {"id": 91, "week": "第十五週", "week_num": 15, "department": "學務處", "tag": "活動競賽", "title": "校園你我他攝影比賽收件截止 (二年級必參加)", "original_text": "12/7(一)校園你我他攝影比賽收件截止 (二年級必參加)", "date_display": "12/7", "start_date": "2026-12-07", "end_date": "2026-12-07", "month": 12}, {"id": 92, "week": "第十五週", "week_num": 15, "department": "學務處", "tag": "校務行政", "title": "導師會報", "original_text": "12/9(三) 導師會報", "date_display": "12/9", "start_date": "2026-12-09", "end_date": "2026-12-09", "month": 12}, {"id": 93, "week": "第十五週", "week_num": 15, "department": "學務處", "tag": "活動競賽", "title": "全校運動會(預備週)", "original_text": "12/11(五)全校運動會(預備週)", "date_display": "12/11", "start_date": "2026-12-11", "end_date": "2026-12-11", "month": 12}, {"id": 94, "week": "第十六週", "week_num": 16, "department": "教務處/進修部", "tag": "重要校務", "title": "優良作業登記", "original_text": "12/14(一)優良作業登記", "date_display": "12/14", "start_date": "2026-12-14", "end_date": "2026-12-14", "month": 12}, {"id": 95, "week": "第十六週", "week_num": 16, "department": "教務處/進修部", "tag": "例行集會", "title": "晨讀", "original_text": "12/17(四)晨讀", "date_display": "12/17", "start_date": "2026-12-17", "end_date": "2026-12-17", "month": 12}, {"id": 96, "week": "第十六週", "week_num": 16, "department": "學務處", "tag": "例行集會", "title": "朝會/學生儀態形象教育", "original_text": "12/15(二)朝會/學生儀態形象教育", "date_display": "12/15", "start_date": "2026-12-15", "end_date": "2026-12-15", "month": 12}, {"id": 97, "week": "第十六週", "week_num": 16, "department": "學務處", "tag": "活動競賽", "title": "全校運動會(暫定)", "original_text": "12/18(五)全校運動會(暫定)", "date_display": "12/18", "start_date": "2026-12-18", "end_date": "2026-12-18", "month": 12}, {"id": 98, "week": "第十七週", "week_num": 17, "department": "教務處/進修部", "tag": "考試測驗", "title": "三年級複習考(1-4冊)", "original_text": "12/23.24(三四)三年級複習考(1-4冊)", "date_display": "12/23 ~ 12/24", "start_date": "2026-12-23", "end_date": "2026-12-24", "month": 12}, {"id": 99, "week": "第十七週", "week_num": 17, "department": "教務處/進修部", "tag": "例行集會", "title": "晨讀", "original_text": "12/24(四)晨讀", "date_display": "12/24", "start_date": "2026-12-24", "end_date": "2026-12-24", "month": 12}, {"id": 100, "week": "第十七週", "week_num": 17, "department": "學務處", "tag": "放假節日", "title": "行憲紀念日", "original_text": "12/25(五)行憲紀念日", "date_display": "12/25", "start_date": "2026-12-25", "end_date": "2026-12-25", "month": 12}, {"id": 101, "week": "第十七週", "week_num": 17, "department": "輔導室/總務處", "tag": "活動競賽", "title": "一年級得勝者課程結束", "original_text": "12/22(二)~1/8(五)一年級得勝者課程結束", "date_display": "12/22 ~ 1/8", "start_date": "2026-12-22", "end_date": "2027-01-08", "month": 12}, {"id": 102, "week": "第十八週", "week_num": 18, "department": "教務處/進修部", "tag": "例行集會", "title": "晨讀", "original_text": "12/31(四)晨讀", "date_display": "12/31", "start_date": "2026-12-31", "end_date": "2026-12-31", "month": 12}, {"id": 103, "week": "第十八週", "week_num": 18, "department": "學務處", "tag": "例行集會", "title": "朝會", "original_text": "12/29(二)朝會", "date_display": "12/29", "start_date": "2026-12-29", "end_date": "2026-12-29", "month": 12}, {"id": 104, "week": "第十八週", "week_num": 18, "department": "學務處", "tag": "校務行政", "title": "花台美化綠化-種植有機蔬菜截止", "original_text": "12/30(三)花台美化綠化-種植有機蔬菜截止", "date_display": "12/30", "start_date": "2026-12-30", "end_date": "2026-12-30", "month": 12}, {"id": 105, "week": "第十八週", "week_num": 18, "department": "學務處", "tag": "放假節日", "title": "中華民國開國紀念日", "original_text": "1/1(五)中華民國開國紀念日", "date_display": "1/1", "start_date": "2027-01-01", "end_date": "2027-01-01", "month": 1}, {"id": 106, "week": "第十九週", "week_num": 19, "department": "學務處", "tag": "例行集會", "title": "朝會/學生儀態形象教育", "original_text": "1/5(二)朝會/學生儀態形象教育", "date_display": "1/5", "start_date": "2027-01-05", "end_date": "2027-01-05", "month": 1}, {"id": 107, "week": "第十九週", "week_num": 19, "department": "學務處", "tag": "例行集會", "title": "交通安全寶腦暨尊重生命宣導", "original_text": "1/8(五)交通安全寶腦暨尊重生命宣導", "date_display": "1/8", "start_date": "2027-01-08", "end_date": "2027-01-08", "month": 1}, {"id": 108, "week": "第十九週", "week_num": 19, "department": "學務處", "tag": "校務行政", "title": "第二次午餐委員會議(暫定)", "original_text": "1/8(五)第二次午餐委員會議(暫定)", "date_display": "1/8", "start_date": "2027-01-08", "end_date": "2027-01-08", "month": 1}, {"id": 109, "week": "第十九週", "week_num": 19, "department": "輔導室/總務處", "tag": "活動競賽", "title": "上午升學博覽會", "original_text": "1/6(三)上午升學博覽會", "date_display": "1/6", "start_date": "2027-01-06", "end_date": "2027-01-06", "month": 1}, {"id": 110, "week": "第十九週", "week_num": 19, "department": "輔導室/總務處", "tag": "活動競賽", "title": "三年級技藝課程(電機、餐旅、食品、家政職群)最後一次上課", "original_text": "1/8(五)三年級技藝課程(電機、餐旅、食品、家政職群)最後一次上課", "date_display": "1/8", "start_date": "2027-01-08", "end_date": "2027-01-08", "month": 1}, {"id": 111, "week": "第二十週", "week_num": 20, "department": "教務處/進修部", "tag": "重要校務", "title": "第八節學藝活動最後一天", "original_text": "1/15(五)第八節學藝活動最後一天", "date_display": "1/15", "start_date": "2027-01-15", "end_date": "2027-01-15", "month": 1}, {"id": 112, "week": "第二十週", "week_num": 20, "department": "輔導室/總務處", "tag": "校務行政", "title": "人間福報贈報最後一天", "original_text": "1/15(五)人間福報贈報最後一天", "date_display": "1/15", "start_date": "2027-01-15", "end_date": "2027-01-15", "month": 1}, {"id": 113, "week": "第二十一週", "week_num": 21, "department": "教務處/進修部", "tag": "考試測驗", "title": "第三次段考", "original_text": "1/18.19(一二)第三次段考", "date_display": "1/18 ~ 1/19", "start_date": "2027-01-18", "end_date": "2027-01-19", "month": 1}, {"id": 114, "week": "第二十一週", "week_num": 21, "department": "教務處/進修部", "tag": "考試測驗", "title": "第三次段考成績輸入截止", "original_text": "1/20(三)第三次段考成績輸入截止", "date_display": "1/20", "start_date": "2027-01-20", "end_date": "2027-01-20", "month": 1}, {"id": 115, "week": "第二十一週", "week_num": 21, "department": "教務處/進修部", "tag": "校務行政", "title": "休業式", "original_text": "1/20(三)休業式", "date_display": "1/20", "start_date": "2027-01-20", "end_date": "2027-01-20", "month": 1}, {"id": 116, "week": "第二十一週", "week_num": 21, "department": "教務處/進修部", "tag": "考試測驗", "title": "進修部期末考週", "original_text": "進修部期末考週", "date_display": "第二十一週", "start_date": "2027-01-18", "end_date": "2027-01-22", "month": 1}, {"id": 117, "week": "第二十一週", "week_num": 21, "department": "學務處", "tag": "考試測驗", "title": "第三次段考", "original_text": "1/18(一)-1/19(二)第三次段考", "date_display": "1/18 ~ 1/19", "start_date": "2027-01-18", "end_date": "2027-01-19", "month": 1}, {"id": 118, "week": "第二十一週", "week_num": 21, "department": "學務處", "tag": "校務行政", "title": "全校大掃除、休業式", "original_text": "1/20(三)全校大掃除、休業式", "date_display": "1/20", "start_date": "2027-01-20", "end_date": "2027-01-20", "month": 1}], "departments": ["全部", "教務處/進修部", "學務處", "輔導室/總務處"], "tags": ["全部", "重要校務", "考試測驗", "放假節日", "例行集會", "活動競賽", "校務行政"], "months": [{"id": "all", "label": "全部月份"}, {"id": "8", "label": "8月 (2026)"}, {"id": "9", "label": "9月 (2026)"}, {"id": "10", "label": "10月 (2026)"}, {"id": "11", "label": "11月 (2026)"}, {"id": "12", "label": "12月 (2026)"}, {"id": "1", "label": "1月 (2027)"}]};
+  </script>
+
+  <!-- Interactive Logic -->
+  <script>
+    const AUTH_KEY = 'ntjh_11501_authenticated';
+    const PASSWORD = '049';
+
+    function checkPassword() {
+      const input = document.getElementById('pwdInput').value.trim();
+      if (input === PASSWORD) {
+        sessionStorage.setItem(AUTH_KEY, 'true');
+        unlockCalendar();
+      } else {
+        const err = document.getElementById('pwdError');
+        err.classList.remove('hidden');
+        document.getElementById('pwdInput').focus();
+        document.getElementById('pwdInput').select();
+      }
+    }
+
+    function unlockCalendar() {
+      const overlay = document.getElementById('passwordOverlay');
+      overlay.classList.add('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        overlay.style.display = 'none';
+      }, 300);
+      document.getElementById('appContent').classList.remove('blur-sm');
+    }
+
+    function lockCalendar() {
+      sessionStorage.removeItem(AUTH_KEY);
+      const overlay = document.getElementById('passwordOverlay');
+      overlay.style.display = 'flex';
+      setTimeout(() => {
+        overlay.classList.remove('opacity-0', 'pointer-events-none');
+      }, 10);
+      document.getElementById('pwdInput').value = '';
+      document.getElementById('pwdError').classList.add('hidden');
+      document.getElementById('appContent').classList.add('blur-sm');
+      document.getElementById('pwdInput').focus();
+    }
+
+    // Check authentication on initial page load
+    (function initAuth() {
+      if (sessionStorage.getItem(AUTH_KEY) === 'true') {
+        const overlay = document.getElementById('passwordOverlay');
+        overlay.style.display = 'none';
+      } else {
+        document.getElementById('appContent').classList.add('blur-sm');
+        setTimeout(() => {
+          const inp = document.getElementById('pwdInput');
+          if (inp) inp.focus();
+        }, 150);
+      }
+    })();
+
+    let currentView = 'weekly'; // 'weekly' or 'timeline'
+    let selectedDept = '全部';
+    let selectedMonth = 'all';
+    let selectedTag = '全部';
+    let searchQuery = '';
+    let currentModalEvent = null;
+
+    // Initialize
+    window.addEventListener('DOMContentLoaded', () => {
+      renderFilters();
+      renderCalendar();
+    });
+
+    function renderFilters() {
+      // Departments
+      const deptContainer = document.getElementById('deptFilters');
+      deptContainer.innerHTML = CALENDAR_DATA.departments.map(dept => {
+        const active = dept === selectedDept;
+        return `<button onclick="setDept('${dept}')" class="px-2.5 py-1 rounded-lg transition font-medium ${
+          active ? 'bg-sky-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+        }">${dept}</button>`;
+      }).join('');
+
+      // Months
+      const monthContainer = document.getElementById('monthFilters');
+      monthContainer.innerHTML = CALENDAR_DATA.months.map(m => {
+        const active = m.id === selectedMonth;
+        return `<button onclick="setMonth('${m.id}')" class="px-2.5 py-1 rounded-lg transition font-medium ${
+          active ? 'bg-sky-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+        }">${m.label}</button>`;
+      }).join('');
+
+      // Tags
+      const tagContainer = document.getElementById('tagFilters');
+      tagContainer.innerHTML = CALENDAR_DATA.tags.map(t => {
+        const active = t === selectedTag;
+        return `<button onclick="setTag('${t}')" class="px-2.5 py-1 rounded-lg transition font-medium ${
+          active ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+        }">${t}</button>`;
+      }).join('');
+    }
+
+    function setDept(dept) { selectedDept = dept; renderFilters(); renderCalendar(); }
+    function setMonth(mId) { selectedMonth = mId; renderFilters(); renderCalendar(); }
+    function setTag(t) { selectedTag = t; renderFilters(); renderCalendar(); }
+
+    function resetFilters() {
+      selectedDept = '全部';
+      selectedMonth = 'all';
+      selectedTag = '全部';
+      searchQuery = '';
+      document.getElementById('searchInput').value = '';
+      document.getElementById('clearSearchBtn').classList.add('hidden');
+      renderFilters();
+      renderCalendar();
+    }
+
+    function handleSearch() {
+      const val = document.getElementById('searchInput').value.trim();
+      searchQuery = val.toLowerCase();
+      document.getElementById('clearSearchBtn').classList.toggle('hidden', !searchQuery);
+      renderCalendar();
+    }
+
+    function clearSearch() {
+      document.getElementById('searchInput').value = '';
+      searchQuery = '';
+      document.getElementById('clearSearchBtn').classList.add('hidden');
+      renderCalendar();
+    }
+
+    function switchView(view) {
+      currentView = view;
+      const weeklyBtn = document.getElementById('viewWeeklyBtn');
+      const timelineBtn = document.getElementById('viewTimelineBtn');
+      const weeklyContainer = document.getElementById('weeklyViewContainer');
+      const timelineContainer = document.getElementById('timelineViewContainer');
+
+      if (view === 'weekly') {
+        weeklyBtn.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-sky-700 shadow-sm transition';
+        timelineBtn.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition';
+        weeklyContainer.classList.remove('hidden');
+        timelineContainer.classList.add('hidden');
+      } else {
+        timelineBtn.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-sky-700 shadow-sm transition';
+        weeklyBtn.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition';
+        weeklyContainer.classList.add('hidden');
+        timelineContainer.classList.remove('hidden');
+      }
+      renderCalendar();
+    }
+
+    // Filter logic
+    function getFilteredEvents() {
+      return CALENDAR_DATA.events.filter(ev => {
+        // Dept match
+        if (selectedDept !== '全部' && ev.department !== selectedDept) return false;
+        
+        // Month match
+        if (selectedMonth !== 'all') {
+          if (!ev.month || ev.month.toString() !== selectedMonth) return false;
+        }
+
+        // Tag match
+        if (selectedTag !== '全部' && ev.tag !== selectedTag) return false;
+
+        // Search Query
+        if (searchQuery) {
+          const content = `${ev.title} ${ev.original_text} ${ev.department} ${ev.week} ${ev.date_display} ${ev.tag}`.toLowerCase();
+          if (!content.includes(searchQuery)) return false;
+        }
+
+        return true;
+      });
+    }
+
+    function getTagClass(tag) {
+      switch (tag) {
+        case '考試測驗': return 'badge-exam';
+        case '放假節日': return 'badge-holiday';
+        case '活動競賽': return 'badge-activity';
+        case '重要校務': return 'badge-meeting';
+        case '校務行政': return 'badge-admin';
+        case '例行集會': return 'badge-routine';
+        default: return 'bg-slate-100 text-slate-700 border border-slate-200';
+      }
+    }
+
+    function renderCalendar() {
+      const filteredEvents = getFilteredEvents();
+      
+      // Update summary text
+      const summaryElem = document.getElementById('filterSummary');
+      summaryElem.innerHTML = `符合條件事項：<strong class="text-sky-700 font-bold">${filteredEvents.length}</strong> 項 (共 ${CALENDAR_DATA.events.length} 項)`;
+
+      if (currentView === 'weekly') {
+        renderWeeklyTable(filteredEvents);
+      } else {
+        renderTimeline(filteredEvents);
+      }
+    }
+
+    // Render Weekly Table
+    function renderWeeklyTable(filteredEvents) {
+      const tbody = document.getElementById('weeklyTableBody');
+      const filteredEventIds = new Set(filteredEvents.map(e => e.id));
+
+      const isFiltering = selectedDept !== '全部' || selectedMonth !== 'all' || selectedTag !== '全部' || searchQuery !== '';
+
+      let html = '';
+      CALENDAR_DATA.weeks.forEach((w, idx) => {
+        const weekEvents = CALENDAR_DATA.events.filter(e => e.week_num === w.week_num);
+        const matchingWeekEvents = weekEvents.filter(e => filteredEventIds.has(e.id));
+        
+        if (isFiltering && matchingWeekEvents.length === 0) {
+          return;
+        }
+
+        const days = w.days;
+        const isExamWeek = weekEvents.some(e => e.tag === '考試測驗');
+
+        const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
+
+        const formatDeptCell = (deptName) => {
+          const deptEvents = weekEvents.filter(e => {
+            if (deptName === '教務處/進修部') return e.department === '教務處/進修部' || e.department.includes('教務');
+            if (deptName === '學務處') return e.department === '學務處';
+            return e.department === '輔導室/總務處' || e.department.includes('輔導') || e.department.includes('總務');
+          });
+
+          if (deptEvents.length === 0) return '<span class="text-slate-300">-</span>';
+
+          return deptEvents.map(e => {
+            const isMatch = filteredEventIds.has(e.id);
+            const opacityClass = isFiltering && !isMatch ? 'opacity-30' : 'opacity-100';
+            const tagStyle = getTagClass(e.tag);
+            
+            return `
+              <div onclick="openModal(${e.id})" class="mb-1.5 p-1.5 rounded-lg border text-left cursor-pointer transition hover:scale-[1.01] hover:shadow-sm ${opacityClass} ${
+                isMatch ? 'bg-white shadow-xs' : 'bg-slate-50'
+              }">
+                <div class="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                  ${e.date_display ? `<span class="font-bold text-[11px] text-slate-800">${e.date_display}</span>` : ''}
+                  <span class="text-[10px] px-1.5 py-0.2 rounded font-medium ${tagStyle}">${e.tag}</span>
+                </div>
+                <div class="text-xs text-slate-700 leading-snug font-normal">${highlightText(e.title, searchQuery)}</div>
+              </div>
+            `;
+          }).join('');
+        };
+
+        html += `
+          <tr class="${rowBg} hover:bg-sky-50/40 transition">
+            <td class="py-3 px-2 text-center font-bold text-slate-600 border-r border-slate-200">
+              ${w.month || ''}
+            </td>
+            <td class="py-3 px-2 text-center font-bold border-r border-slate-200 ${
+              isExamWeek ? 'text-rose-600' : 'text-slate-800'
+            }">
+              第${w.week}週
+            </td>
+            <td class="py-2 px-1 text-center font-medium border-r border-slate-200 text-slate-400 bg-slate-50/50">${days.Sun || ''}</td>
+            <td class="py-2 px-1 text-center font-medium border-r border-slate-200 text-slate-700">${days.Mon || ''}</td>
+            <td class="py-2 px-1 text-center font-medium border-r border-slate-200 text-slate-700">${days.Tue || ''}</td>
+            <td class="py-2 px-1 text-center font-medium border-r border-slate-200 text-slate-700">${days.Wed || ''}</td>
+            <td class="py-2 px-1 text-center font-medium border-r border-slate-200 text-slate-700">${days.Thu || ''}</td>
+            <td class="py-2 px-1 text-center font-medium border-r border-slate-200 text-slate-700">${days.Fri || ''}</td>
+            <td class="py-2 px-1 text-center font-medium border-r border-slate-200 text-slate-400 bg-slate-50/50">${days.Sat || ''}</td>
+            
+            <td class="py-2.5 px-3 align-top border-r border-slate-200">
+              ${formatDeptCell('教務處/進修部')}
+            </td>
+            <td class="py-2.5 px-3 align-top border-r border-slate-200">
+              ${formatDeptCell('學務處')}
+            </td>
+            <td class="py-2.5 px-3 align-top">
+              ${formatDeptCell('輔導室/總務處')}
+            </td>
+          </tr>
+        `;
+      });
+
+      if (html === '') {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="12" class="py-12 text-center text-slate-400">
+              <i class="fa-solid fa-search text-3xl mb-2 text-slate-300 block"></i>
+              沒有符合條件的週次事項
+            </td>
+          </tr>
+        `;
+      } else {
+        tbody.innerHTML = html;
+      }
+    }
+
+    // Render Timeline View
+    function renderTimeline(filteredEvents) {
+      const container = document.getElementById('timelineCards');
+      const emptyNotice = document.getElementById('emptyResultsNotice');
+
+      if (filteredEvents.length === 0) {
+        container.innerHTML = '';
+        emptyNotice.classList.remove('hidden');
+        return;
+      }
+
+      emptyNotice.classList.add('hidden');
+
+      container.innerHTML = filteredEvents.map(e => {
+        const tagStyle = getTagClass(e.tag);
+        const deptColor = e.department.includes('教務') ? 'text-sky-700 bg-sky-50 border-sky-200' :
+                          e.department.includes('學務') ? 'text-amber-800 bg-amber-50 border-amber-200' :
+                          'text-emerald-800 bg-emerald-50 border-emerald-200';
+
+        return `
+          <div onclick="openModal(${e.id})" class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-sm hover:shadow-md transition hover:-translate-y-0.5 cursor-pointer flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <span class="text-xs px-2.5 py-0.5 rounded-full font-semibold ${tagStyle}">${e.tag}</span>
+                <span class="text-xs px-2 py-0.5 rounded-md font-medium border ${deptColor}">${e.department}</span>
+              </div>
+              <h3 class="text-sm font-bold text-slate-900 leading-snug mb-2">${highlightText(e.title, searchQuery)}</h3>
+              <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed font-normal">${e.original_text}</p>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
+              <span class="flex items-center gap-1 font-semibold text-slate-800">
+                <i class="fa-regular fa-clock text-sky-600"></i>
+                ${e.date_display}
+              </span>
+              <span class="text-slate-400 font-medium">${e.week}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function highlightText(text, query) {
+      if (!query) return text;
+      const regex = new RegExp(`(${query})`, 'gi');
+      return text.replace(regex, '<mark class="bg-amber-200 text-slate-900 px-0.5 rounded">$1</mark>');
+    }
+
+    // Modal
+    function openModal(id) {
+      const ev = CALENDAR_DATA.events.find(e => e.id === id);
+      if (!ev) return;
+      currentModalEvent = ev;
+
+      document.getElementById('modalTitle').textContent = ev.title;
+      document.getElementById('modalDept').textContent = ev.department;
+      document.getElementById('modalTag').textContent = ev.tag;
+      document.getElementById('modalTag').className = `px-2.5 py-0.5 rounded-full text-xs font-semibold ${getTagClass(ev.tag)}`;
+      document.getElementById('modalDate').textContent = `${ev.date_display} (${ev.start_date || '依週次日程'})`;
+      document.getElementById('modalWeek').textContent = ev.week;
+      document.getElementById('modalOriginal').textContent = ev.original_text;
+
+      document.getElementById('detailModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('detailModal').classList.add('hidden');
+      currentModalEvent = null;
+    }
+
+    // Google Calendar Link for single event
+    function addSingleEventToGoogle() {
+      if (!currentModalEvent) return;
+      const ev = currentModalEvent;
+      const title = encodeURIComponent(`[${ev.department}] ${ev.title}`);
+      const details = encodeURIComponent(`${ev.original_text} (南投國中115學年度第一學期 ${ev.week})`);
+      
+      let datesParam = '';
+      if (ev.start_date && ev.end_date) {
+        const s = ev.start_date.replace(/-/g, '');
+        const parts = ev.end_date.split('-');
+        const endDateObj = new Date(parts[0], parts[1] - 1, parts[2]);
+        endDateObj.setDate(endDateObj.getDate() + 1);
+        const y = endDateObj.getFullYear();
+        const m = String(endDateObj.getMonth() + 1).padStart(2, '0');
+        const d = String(endDateObj.getDate()).padStart(2, '0');
+        const e = `${y}${m}${d}`;
+        datesParam = `&dates=${s}/${e}`;
+      }
+      
+      const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}${datesParam}`;
+      window.open(url, '_blank');
+    }
+
+    // Download Full ICS
+    function downloadICS() {
+      let icsContent = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//NTJH//School Calendar 115-1//ZH-TW\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\nX-WR-CALNAME:南投國中115學年度第一學期行事曆\r\nX-WR-TIMEZONE:Asia/Taipei\r\n";
+
+      CALENDAR_DATA.events.forEach(ev => {
+        if (!ev.start_date) return;
+        const s = ev.start_date.replace(/-/g, '');
+        const parts = ev.end_date.split('-');
+        const endDateObj = new Date(parts[0], parts[1] - 1, parts[2]);
+        endDateObj.setDate(endDateObj.getDate() + 1);
+        const y = endDateObj.getFullYear();
+        const m = String(endDateObj.getMonth() + 1).padStart(2, '0');
+        const d = String(endDateObj.getDate()).padStart(2, '0');
+        const e = `${y}${m}${d}`;
+
+        icsContent += `BEGIN:VEVENT\r\nUID:ntjh-115-1-${ev.id}@school\r\nDTSTAMP:20260901T000000Z\r\nDTSTART;VALUE=DATE:${s}\r\nDTEND;VALUE=DATE:${e}\r\nSUMMARY:[${ev.department}] ${ev.title}\r\nDESCRIPTION:${ev.original_text.replace(/\n/g, ' ')} (${ev.week})\r\nCATEGORIES:${ev.tag}\r\nSTATUS:CONFIRMED\r\nEND:VEVENT\r\n`;
+      });
+
+      icsContent += "END:VCALENDAR";
+
+      const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = '南投國中115學年度第一學期行事曆.ics';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+</html>
